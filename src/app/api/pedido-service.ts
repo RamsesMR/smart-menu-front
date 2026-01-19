@@ -12,13 +12,38 @@ export interface NuevoPedido {
   mesa: string;
 }
 
+export interface PedidoBackend {
+  id?: string;
+  _id?: string;
+  estadoPedido: string;
+  nota: string;
+  items: any[];
+  total: number;
+  fechaCreacion: string;
+  mesa: string;
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   constructor(private api: ApiClient) {}
 
   crearPedido(pedido: NuevoPedido): Observable<any> {
-    // Ojo con la ruta: tu controller está en /pedido + "/"
+  
     return this.api.post('/pedido', pedido);
+  }
+
+
+  obtenerPedidos(): Observable<PedidoBackend[]> {
+
+    return this.api.get<PedidoBackend[]>('/pedido');
+ 
+  }
+
+
+  actualizarPedido(pedido: PedidoBackend): Observable<any> {
+   
+    return this.api.put('/pedido/', pedido);
+
   }
 }

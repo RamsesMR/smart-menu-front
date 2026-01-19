@@ -1,0 +1,253 @@
+/* Contenedor general de la página de barra */
+.barra-page {
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  background: radial-gradient(circle at top, #202436 0, #05060a 55%, #020308 100%);
+  color: #f5f5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* HEADER */
+.barra-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barra-header .titulo {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* Pestañas de estados */
+.estado-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.estado-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+.estado-tabs::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+}
+
+/* Botones de pestaña */
+.tab {
+  flex-shrink: 0;
+  border: none;
+  outline: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d8d8d8;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.tab.activo {
+  background: #f97316; /* naranja tipo 'acción' */
+  color: #050509;
+}
+
+/* MAIN */
+.barra-main {
+  flex: 1;
+  min-height: 0; /* importante para que el grid interno haga scroll bien */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estados de carga / error / vacío */
+.estado-cargando,
+.estado-error,
+.estado-vacio {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+.estado-error {
+  color: #fca5a5;
+}
+
+.estado-vacio {
+  color: #9ca3af;
+}
+
+/* LISTA DE PEDIDOS */
+.lista-pedidos {
+  margin-top: 0.75rem;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+@media (min-width: 900px) {
+  .lista-pedidos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* TARJETA DE PEDIDO */
+.tarjeta-pedido {
+  background: radial-gradient(circle at top left, #1f2933 0, #050814 58%);
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow:
+    0 12px 28px rgba(15, 23, 42, 0.7),
+    0 0 0 1px rgba(15, 23, 42, 0.8);
+}
+
+/* HEADER de tarjeta */
+.tarjeta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mesa-y-estado {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mesa {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.estado {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+/* Puedes personalizar luego por estado con clases extra si quieres:
+   .estado-NUEVO, .estado-LISTO, etc. */
+
+.fecha {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+/* ITEMS de la tarjeta */
+.tarjeta-items {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tarjeta-items .linea {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tarjeta-items .nombre {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.tarjeta-items .detalles {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.tarjeta-items .nota {
+  font-size: 0.75rem;
+  color: #fbbf24;
+}
+
+/* FOOTER de la tarjeta */
+.tarjeta-footer {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(15, 23, 42, 0.8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.total {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* BOTONES de acciones */
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.btn-accion {
+  border: none;
+  outline: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: rgba(59, 130, 246, 0.18);
+  color: #e5e7eb;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  transition: background 0.16s ease, transform 0.06s ease, box-shadow 0.16s ease;
+}
+
+.btn-accion:hover {
+  background: rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.8);
+}
+
+.btn-accion:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Botón de cancelar: rojo */
+.btn-cancelar {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(248, 113, 113, 0.85);
+  color: #fecaca;
+}
+
+.btn-cancelar:hover {
+  background: rgba(239, 68, 68, 0.3);
+}

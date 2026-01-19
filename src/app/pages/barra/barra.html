@@ -1,1 +1,129 @@
-<p>barra works!</p>
+<div class="barra-page">
+
+  <header class="barra-header">
+    <div class="titulo">
+      Barra / Cocina
+    </div>
+
+    <div class="estado-tabs">
+      <button
+        class="tab"
+        [class.activo]="estadoSeleccionado === 'NUEVO'"
+        (click)="cambiarEstadoFiltro('NUEVO')">
+        Nuevos
+      </button>
+
+      <button
+        class="tab"
+        [class.activo]="estadoSeleccionado === 'EN_PREPARACION'"
+        (click)="cambiarEstadoFiltro('EN_PREPARACION')">
+        En preparación
+      </button>
+
+      <button
+        class="tab"
+        [class.activo]="estadoSeleccionado === 'LISTO'"
+        (click)="cambiarEstadoFiltro('LISTO')">
+        Listos
+      </button>
+
+      <button
+        class="tab"
+        [class.activo]="estadoSeleccionado === 'ENTREGADO'"
+        (click)="cambiarEstadoFiltro('ENTREGADO')">
+        Entregados
+      </button>
+
+      <button
+        class="tab"
+        [class.activo]="estadoSeleccionado === 'CANCELADO'"
+        (click)="cambiarEstadoFiltro('CANCELADO')">
+        Cancelados
+      </button>
+    </div>
+  </header>
+
+  <main class="barra-main">
+
+    <div *ngIf="cargando" class="estado-cargando">
+      Cargando pedidos...
+    </div>
+
+    <div *ngIf="error" class="estado-error">
+      {{ error }}
+    </div>
+
+    <div *ngIf="!cargando && !error">
+
+      <div *ngIf="pedidosFiltrados().length === 0" class="estado-vacio">
+        No hay pedidos en este estado.
+      </div>
+
+      <div class="lista-pedidos">
+        <article class="tarjeta-pedido" *ngFor="let p of pedidosFiltrados()">
+          <header class="tarjeta-header">
+            <div class="mesa-y-estado">
+              <div class="mesa">Mesa {{ p.mesa }}</div>
+              <div class="estado">{{ textoEstadoBonito(p.estadoPedido) }}</div>
+            </div>
+            <div class="fecha">
+              {{ p.fechaCreacion }}
+            </div>
+          </header>
+
+          <section class="tarjeta-items">
+            <div class="linea" *ngFor="let item of p.items">
+              <div class="nombre">
+                {{ item.nombreActual }}
+              </div>
+              <div class="detalles">
+                x {{ item.cantidad }} ·
+                {{ item.precioActual | number:'1.2-2' }} €
+              </div>
+              <div class="nota" *ngIf="item.nota">
+                Nota: {{ item.nota }}
+              </div>
+            </div>
+          </section>
+
+          <footer class="tarjeta-footer">
+            <div class="total">
+              Total: {{ p.total | number:'1.2-2' }} €
+            </div>
+
+            <div class="acciones">
+              <button
+                class="btn-accion"
+                *ngIf="puedePasarAEnPreparacion(p)"
+                (click)="actualizarEstado(p, 'EN_PREPARACION')">
+                Pasar a preparación
+              </button>
+
+              <button
+                class="btn-accion"
+                *ngIf="puedePasarAListo(p)"
+                (click)="actualizarEstado(p, 'LISTO')">
+                Marcar como listo
+              </button>
+
+              <button
+                class="btn-accion"
+                *ngIf="puedePasarAEntregado(p)"
+                (click)="actualizarEstado(p, 'ENTREGADO')">
+                Marcar entregado
+              </button>
+
+              <button
+                class="btn-accion btn-cancelar"
+                *ngIf="puedeCancelar(p)"
+                (click)="actualizarEstado(p, 'CANCELADO')">
+                Cancelar
+              </button>
+            </div>
+          </footer>
+        </article>
+      </div>
+
+    </div>
+  </main>
+</div>
