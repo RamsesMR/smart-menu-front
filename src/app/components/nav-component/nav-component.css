@@ -1,0 +1,35 @@
+.smart-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 10px 0;
+  z-index: 1000;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+.nav-item.active {
+  color: var(--accent);
+}
+
+.icon {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
