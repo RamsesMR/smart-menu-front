@@ -1,48 +1,58 @@
 <div class="home">
-  <div class="brand">
-    <div class="logo">🍽️</div>
-    <div class="title">SmartMenu</div>
-    <div class="subtitle">Elige una opción</div>
-  </div>
+  
+  <header class="brand">
+    <span class="logo" aria-hidden="true">🍽️</span>
+    <h1 class="title">SmartMenu</h1>
+    <p class="subtitle">Elige una opción para comenzar</p>
+  </header>
 
-  <div class="actions">
-    <button class="action-card" (click)="goToMenu()">
-      <div class="action-icon">📖</div>
+  <nav class="actions" aria-label="Opciones principales">
+    <button type="button" class="action-card" (click)="goToMenu()">
+      <span class="action-icon" aria-hidden="true">📖</span>
       <div class="action-text">
-        <div class="action-title">Ver menú</div>
-        <div class="action-desc">Explora platos y bebidas</div>
+        <h2 class="action-title">Ver menú</h2>
+        <p class="action-desc">Explora nuestros platos y bebidas</p>
       </div>
-      <div class="chev">›</div>
+      <span class="chev" aria-hidden="true">›</span>
     </button>
 
-    <button class="action-card" (click)="goToBuild()">
-      <div class="action-icon">🧩</div>
+    <button type="button" class="action-card" (click)="goToBuild()">
+      <span class="action-icon" aria-hidden="true">🧩</span>
       <div class="action-text">
-        <div class="action-title">Armar mi menú</div>
-        <div class="action-desc">Elige y personaliza tu pedido</div>
+        <h2 class="action-title">Armar mi menú</h2>
+        <p class="action-desc">Elige y personaliza tu pedido</p>
       </div>
-      <div class="chev">›</div>
+      <span class="chev" aria-hidden="true">›</span>
     </button>
-  </div>
+  </nav>
 
-  <!-- FAB: llamar al servicio -->
-  <button class="fab" (click)="openCallService()"
-          aria-label="Llamar al servicio" title="Llamar al servicio">
-    🔔
-  </button>
+</div>
 
-  <!-- modal simple -->
-  <div class="backdrop" *ngIf="callModalOpen" (click)="closeCallService()"></div>
-  <div class="modal" *ngIf="callModalOpen" role="dialog" aria-modal="true">
-    <div class="modal-title">¿Llamar al servicio?</div>
-    <div class="modal-desc">Avisaremos al camarero para que venga a tu mesa.</div>
+<button
+  type="button"
+  class="fab"
+  (click)="openCallService()"
+  aria-label="Llamar al servicio de camarero"
+>
+  <span aria-hidden="true">🔔</span>
+</button>
 
+@if (callModalOpen) {
+  <div class="backdrop" (click)="closeCallService()" role="presentation"></div>
+  
+  <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <h2 id="modal-title" class="modal-title">¿Llamar al servicio?</h2>
+    <p class="modal-desc">Avisaremos al camarero para que se acerque a tu mesa lo antes posible.</p>
+    
     <div class="modal-actions">
-      <button class="btn ghost" (click)="closeCallService()">Cancelar</button>
-      <button class="btn primary" (click)="confirmCallService()">Llamar</button>
+      <button type="button" class="btn ghost" (click)="closeCallService()">Cancelar</button>
+      <button type="button" class="btn primary" (click)="confirmCallService()">Llamar ahora</button>
     </div>
   </div>
+}
 
-  <!-- toast -->
-  <div class="toast" *ngIf="toastMsg">{{ toastMsg }}</div>
-</div>
+@if (toastMsg()) {
+  <div class="toast" role="alert" aria-live="polite">
+    {{ toastMsg() }}
+  </div>
+}
