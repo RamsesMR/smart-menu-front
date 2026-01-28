@@ -1,25 +1,30 @@
+/**
+ * Diccionario centralizado de rutas de la API
+ */
 export const endpoints = {
+  /** Gestión de sesiones y perfiles */
   auth: {
     login: '/auth/login',
     me: '/auth/me',
-  },    productos: {
-    list: '/producto',   // este es tu "menú"
+  },
+  /** Catálogo de productos (Carta) */
+  productos: {
+    list: '/producto',
     one: (id: string) => `/producto/${id}`,
   },
+  /** Flujo del Cliente (App Móvil/Tablet) */
   orders: {
     create: '/pedidos',
     myOrders: '/pedidos/mios',
   },
+  /** Llamadas de servicio a mesa */
   service: {
     call: '/servicio/llamar',
   },
-
-    pedidos: {
-    list: '/pedido',                       // GET -> listar todos los pedidos
-    update: '/pedido',                     // PUT -> actualizar un pedido (cambiar estado, etc.)
-    one: (id: string) => `/pedido/${id}`,   // GET -> detalle de un pedido (si lo necesitas)
-    // create no hace falta aquí para Barra, porque lo estás usando desde la parte de "Pedir"
+  /** Gestión de Barra y Cocina */
+  pedidos: {
+    list: '/pedido',
+    update: '/pedido',
+    one: (id: string) => `/pedido/${id}`,
   },
-  
-
 };
