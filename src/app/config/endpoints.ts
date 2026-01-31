@@ -2,7 +2,8 @@ export const endpoints = {
   auth: {
     login: '/auth/login',
     me: '/auth/me',
-  },    productos: {
+  },    
+  productos: {
     list: '/producto',   // este es tu "menú"
     one: (id: string) => `/producto/${id}`,
   },
