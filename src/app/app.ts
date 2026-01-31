@@ -13,7 +13,7 @@ import { AuthService } from './api/auth-service';
 export class App {
   protected readonly title = signal('smart-menu-front');
 
-  constructor(private auth: AuthService) {
-  this.auth.setCredentials('empresa@logistica.com', '1234');
+  //constructor(private auth: AuthService) {
+  //this.auth.setCredentials('empresa@logistica.com', '1234');
 }
-}
+
