@@ -78,28 +78,33 @@ export class Menu implements OnInit {
     });
 
     this.menuService.getMenu().subscribe({
-      next: (resp: any) => {
-        const arr = resp.productos || (Array.isArray(resp) ? resp : []);
-        const guardados = this.pedidoStore.obtenerItems().filter((i) => !i.enviado);
+  next: (resp: any) => {
+    const arr = Array.isArray(resp)
+      ? resp
+      : (resp?.data ?? resp?.content ?? resp?.items ?? resp?.productos ?? []);
 
-        this.productos = (arr || []).map((p: any) => {
-          const idActual = p?.id ?? p?._id ?? p?._Id;
-          const itemEnCarrito = guardados.find((i) => i.productoId === String(idActual));
+    // Mantienes tu lógica: solo precargar los NO enviados
+    const guardados = this.pedidoStore.obtenerItems().filter(i => !i.enviado);
 
-          return {
-            id: idActual,
-            nombre: p?.nombre ?? '',
-            descripcion: p?.descripcion ?? '',
-            precioConIva: Number(p?.precioConIva ?? 0),
-            imagen: p?.imagen,
-            categoria: p?.categoria,
-            kcal: p?.kcal ?? 0,
-            qty: itemEnCarrito ? itemEnCarrito.cantidad : 0,
-          };
-        });
-      },
-      error: (e) => console.error('Error al cargar menú:', e),
+    this.productos = (arr || []).map((p: any) => {
+      const idActual = p?.id ?? p?._id ?? p?._Id;
+      const itemEnCarrito = guardados.find(i => i.productoId === String(idActual));
+
+      return {
+        id: idActual,
+        nombre: p?.nombre ?? '',
+        descripcion: p?.descripcion ?? '',
+        precioConIva: Number(p?.precioConIva ?? 0),
+        imagen: p?.imagen,      // (si necesitas construir URL, te digo abajo)
+        categoria: p?.categoria,
+        kcal: p?.kcal ?? 0,
+        qty: itemEnCarrito ? itemEnCarrito.cantidad : 0,
+      };
     });
+  },
+  error: (e) => console.error('Error al cargar menú:', e),
+});
+
   }
 
   /**
