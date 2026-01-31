@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*.spec.ts", "node_modules/**", "src/test.ts"],
+  "out": "docs",
+  "name": "SmartMenu - Documentación Técnica",
+  "includeVersion": true,
+  "cleanOutputDir": true,
+  "hideGenerator": true
+}

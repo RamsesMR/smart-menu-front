@@ -1,0 +1,5 @@
+main {
+  padding-bottom: 80px; /* Deja espacio para que la barra no tape el contenido */
+  height: 100vh;
+  overflow-y: auto;
+}

@@ -1,29 +1,151 @@
-
-:root{
+/* ==========================================================================
+   PROPRIEDADES GLOBALES
+   ========================================================================== */
+:root {
+  /* Colores de fondo */
   --bg: #0f1115;
   --surface: #161a22;
   --surface-2: #1c2230;
-  --border: rgba(255,255,255,0.08);
-  --text: rgba(255,255,255,0.92);
-  --muted: rgba(255,255,255,0.65);
-  --accent: #d6b15e; 
+
+  /* Colores de acento y estados */
+  --accent: #d6b15e;
   --accent-2: #b8923b;
   --danger: #ff5a5f;
+  --success: #2ecc71;
 
+  /* Colores de texto y bordes */
+  --border: rgba(255, 255, 255, 0.08);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.65);
+
+  /* Medidas y efectos */
   --radius: 18px;
   --radius-lg: 24px;
-
-  --shadow: 0 12px 30px rgba(0,0,0,0.35);
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html, body {
+/* ==========================================================================
+   RESET Y ESTILOS BASE
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
   height: 100%;
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  overflow: hidden; 
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family:
+    'Roboto',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-* { box-sizing: border-box; }
-button { font-family: inherit; }
+body {
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* --- BOTONES --- */
+.btn-app {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+  gap: 8px;
+  text-align: center;
+  user-select: none;
+}
+
+.btn-app:active {
+  transform: scale(0.96);
+}
+
+.btn-app:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Variantes de botones */
+.btn-app.primary {
+  background: var(--accent);
+  color: #000;
+}
+
+.btn-app.primary:hover:not(:disabled) {
+  background: var(--accent-2);
+  box-shadow: 0 4px 15px rgba(214, 177, 94, 0.3);
+}
+
+.btn-app.secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-app.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-app.danger {
+  background: rgba(255, 90, 95, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(255, 90, 95, 0.2);
+}
+
+.btn-app.danger:hover:not(:disabled) {
+  background: var(--danger);
+  color: white;
+}
+
+/* --- INPUTS Y FORMULARIOS --- */
+.input-app {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  outline: none;
+}
+
+.input-app:focus {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+/* --- CONTENEDORES --- */
+.card-app {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.badge-app {
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}

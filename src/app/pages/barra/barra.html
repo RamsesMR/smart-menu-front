@@ -1,129 +1,118 @@
 <div class="barra-page">
-
   <header class="barra-header">
-    <div class="titulo">
-      Barra / Cocina
-    </div>
-
-    <div class="estado-tabs">
-      <button
-        class="tab"
-        [class.activo]="estadoSeleccionado === 'NUEVO'"
-        (click)="cambiarEstadoFiltro('NUEVO')">
-        Nuevos
-      </button>
-
-      <button
-        class="tab"
-        [class.activo]="estadoSeleccionado === 'EN_PREPARACION'"
-        (click)="cambiarEstadoFiltro('EN_PREPARACION')">
-        En preparación
-      </button>
-
-      <button
-        class="tab"
-        [class.activo]="estadoSeleccionado === 'LISTO'"
-        (click)="cambiarEstadoFiltro('LISTO')">
-        Listos
-      </button>
-
-      <button
-        class="tab"
-        [class.activo]="estadoSeleccionado === 'ENTREGADO'"
-        (click)="cambiarEstadoFiltro('ENTREGADO')">
-        Entregados
-      </button>
-
-      <button
-        class="tab"
-        [class.activo]="estadoSeleccionado === 'CANCELADO'"
-        (click)="cambiarEstadoFiltro('CANCELADO')">
-        Cancelados
-      </button>
-    </div>
+    <h1 class="titulo">Barra / Cocina</h1>
+    @if (cargando) {
+      <small class="status-sync" role="status">Sincronizando...</small>
+    }
   </header>
 
-  <main class="barra-main">
-
-    <div *ngIf="cargando" class="estado-cargando">
-      Cargando pedidos...
-    </div>
-
-    <div *ngIf="error" class="estado-error">
-      {{ error }}
-    </div>
-
-    <div *ngIf="!cargando && !error">
-
-      <div *ngIf="pedidosFiltrados().length === 0" class="estado-vacio">
-        No hay pedidos en este estado.
-      </div>
-
+  <main class="barra-columnas">
+    <section class="kanban-col" aria-labelledby="header-nuevos">
+      <h2 id="header-nuevos" class="col-header">Nuevos Pedidos</h2>
       <div class="lista-pedidos">
-        <article class="tarjeta-pedido" *ngFor="let p of pedidosFiltrados()">
-          <header class="tarjeta-header">
-            <div class="mesa-y-estado">
-              <div class="mesa">Mesa {{ p.mesa }}</div>
-              <div class="estado">{{ textoEstadoBonito(p.estadoPedido) }}</div>
-            </div>
-            <div class="fecha">
-              {{ p.fechaCreacion }}
-            </div>
-          </header>
-
-          <section class="tarjeta-items">
-            <div class="linea" *ngFor="let item of p.items">
-              <div class="nombre">
-                {{ item.nombreActual }}
-              </div>
-              <div class="detalles">
-                x {{ item.cantidad }} ·
-                {{ item.precioActual | number:'1.2-2' }} €
-              </div>
-              <div class="nota" *ngIf="item.nota">
-                Nota: {{ item.nota }}
-              </div>
-            </div>
-          </section>
-
-          <footer class="tarjeta-footer">
-            <div class="total">
-              Total: {{ p.total | number:'1.2-2' }} €
-            </div>
-
-            <div class="acciones">
-              <button
-                class="btn-accion"
-                *ngIf="puedePasarAEnPreparacion(p)"
-                (click)="actualizarEstado(p, 'EN_PREPARACION')">
-                Pasar a preparación
-              </button>
-
-              <button
-                class="btn-accion"
-                *ngIf="puedePasarAListo(p)"
-                (click)="actualizarEstado(p, 'LISTO')">
-                Marcar como listo
-              </button>
-
-              <button
-                class="btn-accion"
-                *ngIf="puedePasarAEntregado(p)"
-                (click)="actualizarEstado(p, 'ENTREGADO')">
-                Marcar entregado
-              </button>
-
-              <button
-                class="btn-accion btn-cancelar"
-                *ngIf="puedeCancelar(p)"
-                (click)="actualizarEstado(p, 'CANCELADO')">
-                Cancelar
-              </button>
-            </div>
-          </footer>
-        </article>
+        @for (mesa of getMesasEnEstado('NUEVO'); track mesa) {
+          <div class="mesa-group">
+            <span class="mesa-badge">Mesa {{ mesa }}</span>
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'NUEVO'); track p.id) {
+              <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
+            }
+          </div>
+        } @empty {
+          <div class="vacio-msg">Sin pedidos</div>
+        }
       </div>
+    </section>
 
-    </div>
+    <section class="kanban-col" aria-labelledby="header-preparando">
+      <h2 id="header-preparando" class="col-header">Preparando</h2>
+      <div class="lista-pedidos">
+        @for (mesa of getMesasEnEstado('EN_PREPARACION'); track mesa) {
+          <div class="mesa-group">
+            <span class="mesa-badge">Mesa {{ mesa }}</span>
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'EN_PREPARACION'); track p.id) {
+              <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
+            }
+          </div>
+        } @empty {
+          <div class="vacio-msg">Libre</div>
+        }
+      </div>
+    </section>
+
+    <section class="kanban-col" aria-labelledby="header-listos">
+      <h2 id="header-listos" class="col-header">Listos</h2>
+      <div class="lista-pedidos">
+        @for (mesa of getMesasEnEstado('LISTO'); track mesa) {
+          <div class="mesa-group">
+            <span class="mesa-badge">Mesa {{ mesa }}</span>
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track p.id) {
+              <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
+            }
+          </div>
+        } @empty {
+          <div class="vacio-msg">Vacío</div>
+        }
+      </div>
+    </section>
+
+    <section class="kanban-col" aria-labelledby="header-entregados">
+      <h2 id="header-entregados" class="col-header">Entregados</h2>
+      <div class="lista-pedidos">
+        @for (mesa of getMesasEnEstado('ENTREGADO'); track mesa) {
+          <div class="mesa-group">
+            <span class="mesa-badge">Mesa {{ mesa }}</span>
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track p.id) {
+              <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
+            }
+          </div>
+        } @empty {
+          <div class="vacio-msg">Vacío</div>
+        }
+      </div>
+    </section>
   </main>
 </div>
+
+<ng-template #ticket let-p>
+  <article class="tarjeta-pedido">
+    <section class="tarjeta-items">
+      @for (item of p.items; track $index) {
+        <div class="item-linea">
+          <strong class="item-cantidad">{{ item.cantidad }}x</strong>
+          <span class="item-nombre">{{ item.nombreActual }}</span>
+          @if (item.nota) {
+            <div class="nota-item">Nota: {{ item.nota }}</div>
+          }
+        </div>
+      }
+    </section>
+
+    <footer class="acciones-grid">
+      @if (puedePasarAEnPreparacion(p)) {
+        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'EN_PREPARACION')">
+          Preparar
+        </button>
+      }
+      @if (puedePasarAListo(p)) {
+        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'LISTO')">
+          Listo
+        </button>
+      }
+      @if (puedePasarAEntregado(p)) {
+        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'ENTREGADO')">
+          Entregar
+        </button>
+      }
+      @if (puedeCancelar(p)) {
+        <button
+          type="button"
+          class="btn-accion btn-cancelar"
+          (click)="actualizarEstado(p, 'CANCELADO')"
+          aria-label="Cancelar pedido"
+        >
+          ✖
+        </button>
+      }
+    </footer>
+  </article>
+</ng-template>

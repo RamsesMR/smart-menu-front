@@ -1,59 +1,42 @@
-# SmartMenuFront
+# SmartMenu - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.6.
+Sistema de gestión de pedidos y carta digital inteligente para restauración. Este repositorio contiene la aplicación cliente desarrollada en Angular.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Inicio Rápido
 
-```bash
-ng serve
-```
+1. **Instalar dependencias:**
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+   ````bash
+   npm install```
 
-## Code scaffolding
+   ````
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+2. **Lanzar servidor de desarrollo:**
 
-```bash
-ng generate component component-name
-```
+`bash ng serve`
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Accede a http://localhost:4200 en tu navegador.
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+## Documentación Técnica
 
-To build the project run:
+Hemos documentado la arquitectura, las interfaces y los servicios utilizando **TypeDoc**.
 
-```bash
-ng build
-```
+Para generar y ver la documentación técnica detallada, ejecuta:
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+**npm run generate-docs**
 
-## Running unit tests
+> **Nota:** Una vez finalizado el comando, abre el archivo ./docs/index.html en tu navegador.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Tecnologías Utilizadas
 
-```bash
-ng test
-```
+- **Angular 20**
+- **TypeDoc**
+- **CSS**
 
-## Running end-to-end tests
+## 🔗 Guía de Integración
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Para Backend, por favor consultad el archivo INTEGRATION.md para detalles sobre los Endpoints, modelos JSON y seguridad JWT.
