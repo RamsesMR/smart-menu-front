@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../api/auth-service';
+import { environment } from '../../../environment/environment'; 
+
 
 @Component({
   selector: 'app-login',
@@ -34,7 +36,8 @@ export class Login {
 
       // “Ping” para validar credenciales (elige un endpoint protegido)
       // /categoria o /producto si ya lo tienes protegido
-      await this.http.get('http://localhost:9002/producto').toPromise();
+await this.http.get(`${environment.apiUrl}/producto`).toPromise();
+
 
       // OK -> entra
       this.router.navigateByUrl('/inicio');
