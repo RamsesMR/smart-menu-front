@@ -20,6 +20,8 @@ export const endpoints = {
     one: (id: string) => `/pedido/${id}`,   // GET -> detalle de un pedido (si lo necesitas)
     // create no hace falta aquí para Barra, porque lo estás usando desde la parte de "Pedir"
   },
-  
+
+
+
 
 };

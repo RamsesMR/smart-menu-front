@@ -23,27 +23,20 @@ export class Login {
     private http: HttpClient,
     private router: Router
   ) {}
+submit() {
+  this.error = null;
+  this.loading = true;
 
-  async submit() {
-    this.error = null;
-    this.loading = true;
-
-    try {
-      // Guardamos credenciales (interceptor las meterá como Basic)
-      this.auth.setCredentials(this.email.trim(), this.password);
-
-      // “Ping” para validar credenciales (elige un endpoint protegido)
-      // /categoria o /producto si ya lo tienes protegido
-      await this.http.get('http://localhost:9002/producto').toPromise();
-
-      // OK -> entra
+  this.auth.login(this.email.trim(), this.password).subscribe({
+    next: () => {
       this.router.navigateByUrl('/inicio');
-    } catch (e: any) {
-      // si falla, limpiamos token para que no se quede guardado
+      this.loading = false;
+    },
+    error: () => {
       this.auth.clear();
-      this.error = 'Credenciales inválidas o tablet no autorizada';
-    } finally {
+      this.error = 'Credenciales inválidas';
       this.loading = false;
     }
-  }
+  });
+}
 }
