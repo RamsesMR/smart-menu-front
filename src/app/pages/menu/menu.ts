@@ -19,6 +19,7 @@ type ProductoVM = {
   imagen?: string;
   categoria?: string;
   qty: number;
+  kcal:number;
   
 };
 
@@ -76,7 +77,8 @@ export class Menu implements OnInit {
           precioConIva: Number(p?.precioConIva ?? 0),
           imagen: p?.imagen,
           categoria: p?.categoria,
-          qty: 0,                               //  inicial
+          qty: 0,
+          kcal:p?.kcal,                           //  inicial
         }));
 
         console.log('productos.length:', this.productos.length);

@@ -15,12 +15,14 @@ type PedidoVM = {
 
 @Component({
   selector: 'app-barra',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './barra.html',
   styleUrl: './barra.css',
 })
 export class Barra implements OnInit {
   pedidos: PedidoVM[] = [];
+  pedidosView: PedidoVM[] = [];
 
   cargando = false;
   error = '';
@@ -46,16 +48,22 @@ export class Barra implements OnInit {
       return String(raw);
     }
   }
-  cargarPedidos() {
+
+
+    private aplicarFiltro() {
+    this.pedidosView = this.estadoSeleccionado
+      ? this.pedidos.filter(p => p.estadoPedido === this.estadoSeleccionado)
+      : [...this.pedidos];
+  }
+    cargarPedidos() {
     this.cargando = true;
     this.error = '';
 
     this.pedidoService.obtenerPedidos().subscribe({
-      next: (resp: any[]) => {
-        const arr = Array.isArray(resp) ? resp : ((resp as any)?.data ?? []);
+      next: (resp: any) => {
+        const arr = Array.isArray(resp) ? resp : (resp?.data ?? []);
         this.pedidos = arr.map((p: any) => ({
           id: this.normalizarId(p.id ?? p._id ?? p?._Id),
-
           estadoPedido: p.estadoPedido ?? '',
           nota: p.nota ?? '',
           items: p.items ?? [],
@@ -63,6 +71,8 @@ export class Barra implements OnInit {
           fechaCreacion: p.fechaCreacion ?? '',
           mesa: p.mesa ?? '',
         }));
+
+        this.aplicarFiltro();
         this.cargando = false;
       },
       error: (err) => {
@@ -73,9 +83,11 @@ export class Barra implements OnInit {
     });
   }
 
+
   // para las pestañas de estado (NUEVO, EN_PREPARACION, LISTO, ENTREGADO, CANCELADO)
-  cambiarEstadoFiltro(estado: string) {
+   cambiarEstadoFiltro(estado: string) {
     this.estadoSeleccionado = estado;
+    this.aplicarFiltro();
   }
 
   pedidosFiltrados(): PedidoVM[] {

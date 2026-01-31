@@ -26,6 +26,10 @@ export class Inicio {
     this.callModalOpen = true;
   }
 
+  mensaje(){
+     alert("En contrucción")
+  }
+
   closeCallService() {
     this.callModalOpen = false;
   }

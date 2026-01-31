@@ -42,6 +42,7 @@
         <div class="name">{{ p.nombre }}</div>
         <div class="desc">{{ p.descripcion }}</div>
         <div class="price">{{ p.precioConIva | number:'1.2-2' }} €</div>
+        <div class="price"> {{p.kcal != null ? p.kcal +" kcal" : "Sin calorias" }}</div>
       </div>
 
       <!-- Controles SOLO en modo armar -->
