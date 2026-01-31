@@ -9,8 +9,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   if (!token) return next(req);
 
-  // opcional: solo a la API
-  if (!req.url.startsWith('http://localhost:9002')) return next(req);
+  // opcional solo a la API
+if (!req.url.startsWith(environment.apiUrl)) return next(req);
+
 
   return next(req.clone({
     setHeaders: { Authorization: `Bearer ${token}` },

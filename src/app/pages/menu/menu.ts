@@ -133,7 +133,7 @@ export class Menu implements OnInit {
   this.pedidoStore.guardarItems(items);
 
   // Navegamos a /pedir
-  this.router.navigate(['/barra']);
+  this.router.navigate(['/pedir']);
 }
 
 
