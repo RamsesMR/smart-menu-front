@@ -9,7 +9,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login').then(m => m.Login),
   },
 
- 
   {
     path: 'inicio',
     canActivate: [authGuard],
@@ -27,8 +26,6 @@ export const routes: Routes = [
   },
   { path: 'barra', loadComponent: () => import('./pages/barra/barra').then(m => m.Barra) },
 
-
- 
   { path: '', pathMatch: 'full', redirectTo: 'login' },
 
   { path: '404', component: Pagina404 },
