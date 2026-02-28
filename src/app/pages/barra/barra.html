@@ -56,7 +56,7 @@
         }
       </div>
     </section>
-    
+
 
     <section class="kanban-col" aria-labelledby="header-entregados">
       <h2 id="header-entregados" class="col-header">Entregados</h2>
@@ -79,6 +79,28 @@
 
 <ng-template #ticket let-p>
   <article class="tarjeta-pedido">
+    <!-- CABECERA DEL TICKET -->
+    <header class="ticket-header">
+      <div class="ticket-left">
+        <div class="ticket-codigo">
+          {{ p.codigo || ('#' + (p.id | slice:0:6)) }}
+        </div>
+        <div class="ticket-mesa">
+          {{ p.mesaId }}
+        </div>
+      </div>
+
+      <div class="ticket-right">
+        <div class="ticket-hora">
+          {{ p.fechaCreacion | date:'HH:mm' }}
+        </div>
+        <div class="ticket-total">
+          {{ p.totalPedido | number:'1.2-2' }} €
+        </div>
+      </div>
+    </header>
+
+    <!-- ITEMS -->
     <section class="tarjeta-items">
       @for (item of p.lineasPedido; track $index) {
         <div class="item-linea">
@@ -91,6 +113,7 @@
       }
     </section>
 
+    <!-- BOTONES -->
     <footer class="acciones-grid">
       @if (puedePasarAEnPreparacion(p)) {
         <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'PREPARANDO')">

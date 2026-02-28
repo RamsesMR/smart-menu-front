@@ -9,6 +9,7 @@ import { PedidoStore } from '../../state/pedido.store';
 type PedidoVM = {
   id: string;
   estado: string;
+  codigo: string;
   nota: string;
   lineasPedido: any[];
   totalPedido: number;
@@ -83,6 +84,7 @@ private normalizarId(raw: any): string {
       this.pedidos = (resp ?? []).map((p: any) => ({
         id: this.normalizarId(p.id ?? p._id ?? p?._Id),
         estado: p.estado ?? '',
+        codigo: p.codigo ?? '',
         nota: p.nota ?? '',
         lineasPedido: p.lineasPedido ?? [],
         totalPedido: Number(p.totalPedido ?? 0),
