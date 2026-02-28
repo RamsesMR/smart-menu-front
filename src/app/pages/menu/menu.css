@@ -119,13 +119,25 @@
 }
 
 /* GRID DE PRODUCTOS */
+
 .grid {
   overflow-y: auto;
   padding: 4px;
   padding-bottom: 120px;
+
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+
+  /* no se estira a pantalla completa */
+  grid-template-columns: repeat(auto-fit, minmax(190px, 320px));
+
+  /* ✅ a la izquierda */
+  justify-content: start;
+  align-content: start;
+}
+/* Permite que el área de la grid haga scroll sin estirar el contenido */
+.grid-container {
+  min-height: 0;
 }
 
 /* CARD DE PRODUCTO */

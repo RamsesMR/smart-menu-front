@@ -71,6 +71,17 @@ export class Menu implements OnInit {
     this.cargarMenuYSincronizar();
   }
 
+  private categoriaDesdeTags(tags: any): string {
+  const t = (Array.isArray(tags) ? tags : [])
+    .map((x: any) => String(x).toUpperCase());
+
+  if (t.includes('ENTRANTE')) return 'Entrantes';
+  if (t.includes('PRINCIPAL')) return 'Principales';
+  if (t.includes('POSTRE')) return 'Postres';
+  if (t.includes('BEBIDA')) return 'Bebidas';
+  return 'Otros';
+}
+
   private cargarMenuYSincronizar() {
     this.menuService.getMenu().subscribe({
       next: (resp: any) => {
@@ -106,7 +117,7 @@ const idEsValido = /^[a-fA-F0-9]{24}$/.test(idLimpio);
   descripcion: p.descripcion || '',
   precioConIva: Number(p.precioConIva ?? p.precio ?? 0),
   imagen: p.imagen,
-  categoria: p.categoria || 'Otros',
+  categoria: this.categoriaDesdeTags(p.tags),
   kcal: p.kcal || 0,
   qty: coincidencia ? Number(coincidencia.cantidad) : 0,
 };
