@@ -13,7 +13,7 @@
         @for (mesa of getMesasEnEstado('RECIBIDO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'RECIBIDO'); track p.id) {
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'RECIBIDO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -29,7 +29,8 @@
         @for (mesa of getMesasEnEstado('PREPARANDO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'PREPARANDO'); track p.id) {
+           
+              @for (p of getPedidosDeMesaEnEstado(mesa, 'PREPARANDO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -45,7 +46,8 @@
         @for (mesa of getMesasEnEstado('LISTO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track p.id) {
+         
+              @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -61,7 +63,8 @@
         @for (mesa of getMesasEnEstado('ENTREGADO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track p.id) {
+            
+              @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
