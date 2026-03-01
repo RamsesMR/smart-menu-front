@@ -55,6 +55,13 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/formulario-ia/formulario-ia').then((m) => m.FormularioIa),
   },
 
+  {
+  path: 'admin',
+  canActivate: [roleGuard],
+  data: { roles: ['EMPRESA'] },
+  loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
+},
+
   /** Redirección por defecto al entrar en la raíz */
   { path: '', pathMatch: 'full', redirectTo: 'login' },
 

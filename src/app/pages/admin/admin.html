@@ -1,0 +1,159 @@
+<div class="admin-page">
+  <div class="top-actions">
+    <button class="btn-logout" type="button" (click)="logout()">Logout</button>
+  </div>
+
+  <header class="top">
+    <div class="top-row">
+      <h1 class="title">Admin · Productos</h1>
+
+      <button class="btn-primary" type="button" (click)="abrirNuevo()">
+        + Nuevo producto
+      </button>
+    </div>
+
+    <div class="filters-row">
+      <input
+        class="search-input"
+        placeholder="Buscar por nombre o descripción..."
+        [value]="search()"
+        (input)="search.set(($any($event.target).value || ''))"
+      />
+
+      <select class="select" [value]="filtroDisponible()" (change)="filtroDisponible.set($any($event.target).value)">
+        <option value="TODOS">Todos</option>
+        <option value="SI">Disponibles</option>
+        <option value="NO">No disponibles</option>
+      </select>
+    </div>
+
+    @if (error()) {
+      <div class="error-box">{{ error() }}</div>
+    }
+  </header>
+
+  <main class="grid-container">
+    @if (cargando()) {
+      <div class="loading-state">Cargando...</div>
+    } @else {
+      <div class="grid">
+        @for (p of productosFiltrados(); track (p.id || $index)) {
+          <article class="card">
+            <div class="card-img-box">
+              <div class="img-wrapper">
+                <img
+                  [src]="p.imagen"
+                  [alt]="p.nombre"
+                  class="product-img"
+                  onerror="this.src = 'assets/default-plate.png'"
+                />
+              </div>
+              <div class="badge" [class.off]="!p.disponible">
+                {{ p.disponible ? 'Disponible' : 'Oculto' }}
+              </div>
+            </div>
+
+            <div class="meta">
+              <div class="name-row">
+                <h2 class="name">{{ p.nombre }}</h2>
+                <span class="price">{{ p.precioConIva || p.precio }} €</span>
+              </div>
+
+              <p class="desc">{{ p.descripcion }}</p>
+
+              <div class="mini">
+                @if (p.kcal) { <span class="pill">🔥 {{ p.kcal }} kcal</span> }
+                @if (p.tags?.length) { <span class="pill">{{ p.tags?.join(' · ') }}</span> }
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn" type="button" (click)="abrirEditar(p)">Editar</button>
+              <button class="btn danger" type="button" (click)="eliminar(p)">Eliminar</button>
+            </div>
+          </article>
+        } @empty {
+          <div class="empty-state">No hay productos para mostrar.</div>
+        }
+      </div>
+    }
+  </main>
+
+  @if (modalAbierto()) {
+    <div class="modal-backdrop" (click)="cerrarModal()"></div>
+
+    <section class="modal" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <h3>{{ editando() ? 'Editar producto' : 'Nuevo producto' }}</h3>
+        <button type="button" class="btn-close" (click)="cerrarModal()">✖</button>
+      </header>
+
+      <form class="modal-body" [formGroup]="form" (ngSubmit)="guardar()">
+        <div class="row">
+          <div class="field">
+            <label>Nombre</label>
+            <input class="input" formControlName="nombre" />
+          </div>
+
+          <div class="field">
+            <label>Disponible</label>
+            <select class="select" formControlName="disponible">
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Descripción</label>
+          <textarea class="textarea" rows="2" formControlName="descripcion"></textarea>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Precio (sin IVA)</label>
+            <input class="input" type="number" step="0.01" formControlName="precio" />
+          </div>
+
+          <div class="field">
+            <label>Tipo IVA (%)</label>
+            <input class="input" type="number" step="0.01" formControlName="tipoIva" />
+          </div>
+
+          <div class="field">
+            <label>Kcal</label>
+            <input class="input" type="number" step="1" formControlName="kcal" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Imagen (URL o base64)</label>
+          <input class="input" formControlName="imagen" />
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Tags (coma)</label>
+            <input class="input" placeholder="ENTRANTE, PRINCIPAL, BEBIDA..." formControlName="tags" />
+          </div>
+          <div class="field">
+            <label>Alérgenos (coma)</label>
+            <input class="input" placeholder="gluten, huevo..." formControlName="alergenos" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>RestauranteId (opcional)</label>
+          <input class="input" formControlName="restauranteId" />
+        </div>
+
+        <footer class="modal-footer">
+          <button class="btn" type="button" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-primary" type="submit" [disabled]="cargando() || form.invalid">
+            Guardar
+          </button>
+        </footer>
+      </form>
+    </section>
+  }
+</div>
