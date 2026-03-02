@@ -1,3 +1,4 @@
+/* --- CONTENEDOR PRINCIPAL --- */
 .pedido {
   max-width: 900px;
   margin: 0 auto;
@@ -5,6 +6,14 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* --- CABECERA --- */
+.top {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
 
 .top-row {
@@ -15,138 +24,223 @@
 
 .title {
   font-size: 1.6rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--accent);
 }
 
-.resumen-mini {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.dot {
-  margin: 0 4px;
-}
-
-.mesa-row {
-  margin-top: 8px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.mesa-row input {
-  flex: 1;
-  padding: 6px 8px;
-}
-
-.mensaje {
-  padding: 8px 10px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.mensaje.ok {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.mensaje.error {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.sin-items {
-  text-align: center;
-  margin-top: 40px;
-}
-
+/* --- LISTA DE PRODUCTOS --- */
 .lista-pedido {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 220px;
 }
 
-.linea {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px;
+.linea.card-app {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: #fff;
+  gap: 12px;
+  background: var(--surface);
 }
 
 .linea-info-principal {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
 }
 
 .nombre {
   font-weight: 600;
+  font-size: 1.1rem;
 }
 
-.precio-unitario {
-  font-size: 0.9rem;
-  opacity: 0.8;
+.subtotal {
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .linea-controles {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
 }
 
 .btn-cantidad {
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  border: 1px solid #333;
-  background: #fff;
-  font-size: 1.1rem;
-  line-height: 1;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cantidad {
-  min-width: 24px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-width: 20px;
   text-align: center;
 }
 
-.subtotal {
+.precio-unitario {
+  font-size: 0.85rem;
+  color: var(--muted);
   margin-left: auto;
-  font-weight: 600;
 }
 
-.nota textarea {
-  width: 100%;
-  resize: vertical;
-  padding: 6px 8px;
-}
-
+/* --- PIE Y ACCIONES --- */
 .pie {
-  border-top: 1px solid #ddd;
-  padding-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  z-index: 100;
 }
 
 .totales {
   display: flex;
   justify-content: space-between;
-  font-size: 1.1rem;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .total-euros {
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--accent);
 }
 
 .acciones {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.acciones .btn {
-  flex: 1;
+.acciones .btn-app.primary {
+  grid-column: span 2;
+  margin-top: 5px;
+}
+
+/* --- FEEDBACK & OVERLAYS --- */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+
+.feedback-content .icon {
+  font-size: 5rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.sin-items {
+  text-align: center;
+  color: var(--muted);
+}
+
+/* --- BARRA DE PROGRESO / TRACKER --- */
+.status-tracker {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent); /* Detalle elegante en dorado */
+  padding: 16px;
+  border-radius: var(--radius);
+  margin: 16px 0;
+  box-shadow: var(--shadow);
+  animation: slideDown 0.4s ease-out;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.status-label {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-percentage {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.progress-container {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #f1c40f 100%);
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(214, 177, 94, 0.3);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.separador-comanda {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 25px 0 10px 5px;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+.linea.enviado {
+  opacity: 0.6;
+  border-left: 3px solid var(--accent);
+  filter: grayscale(0.5);
+}
+
+.check-icon {
+  color: var(--accent);
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.nota-fija {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 5px;
 }

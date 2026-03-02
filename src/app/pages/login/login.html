@@ -1,18 +1,41 @@
 <div class="screen">
-  <div class="card">
-    <h1>Activar tablet</h1>
-    <p class="sub">Introduce las credenciales autorizadas.</p>
+  <main class="card">
+    <header>
+      <h1 class="title">Activar tablet</h1>
+      <p class="sub">Introduce las credenciales autorizadas para este terminal.</p>
+    </header>
 
-    <label>Email</label>
-    <input [(ngModel)]="email" type="email" placeholder="tablet@restaurante.com" />
+    <div class="form-group">
+      <label for="email-input">Correo electrónico</label>
+      <input
+        id="email-input"
+        [(ngModel)]="email"
+        type="email"
+        placeholder="tablet@restaurante.com"
+        aria-required="true"
+      />
 
-    <label>Contraseña</label>
-    <input [(ngModel)]="password" type="password" placeholder="••••••••" />
+      <label for="pass-input">Contraseña</label>
+      <input
+        id="pass-input"
+        [(ngModel)]="password"
+        type="password"
+        placeholder="••••••••"
+        aria-required="true"
+      />
 
-    <button (click)="submit()" [disabled]="loading || !email || !password">
-      {{ loading ? 'Validando…' : 'Entrar' }}
-    </button>
+      <button
+        type="button"
+        (click)="submit()"
+        [disabled]="loading || !email || !password"
+        [class.loading]="loading"
+      >
+        {{ loading ? 'Validando credenciales…' : 'Activar dispositivo' }}
+      </button>
+    </div>
 
-    <p class="error" *ngIf="error">{{ error }}</p>
-  </div>
+    @if (error) {
+      <p class="error-msg" role="alert"><span aria-hidden="true">⚠️</span> {{ error }}</p>
+    }
+  </main>
 </div>

@@ -1,49 +1,80 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs';
-import { environment } from '../../environment/environment';
-import { endpoints } from '../config/endpoints';
-import { AuthResponse } from '../models/auth.models';
+import { Observable, of } from 'rxjs';
+import { AuthResponse, User, Role } from '../models/auth.models';
 
+/**
+ * Servicio de Autenticación para SmartMenu.
+ * * Versión de Desarrollo (MOCK): Sin conexión a Base de Datos.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private tokenKey = 'sm_token';
-  private userKey = 'sm_user';
+  private readonly TOKEN_KEY = 'sm_token';
+  private readonly USER_KEY = 'sm_user';
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
-  login(email: string, password: string) {
-    return this.http
-      .post<AuthResponse>(`${environment.apiUrl}${endpoints.auth.login}`, {
-        email,
-        password
-      })
-      .pipe(
-        tap(res => {
-          localStorage.setItem(this.tokenKey, res.token);
-          localStorage.setItem(this.userKey, JSON.stringify(res.user));
-        })
-      );
-  }
-
-  
-
+  /**
+   * Recupera el token de acceso.
+   */
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  getUser(): any | null {
-    const raw = localStorage.getItem(this.userKey);
-    return raw ? JSON.parse(raw) : null;
+  /**
+   * Recupera el objeto de usuario completo.
+   * @returns El objeto {@link User} o null.
+   */
+  getUser(): User | null {
+    const userJson = localStorage.getItem(this.USER_KEY);
+    if (!userJson) return null;
+    try {
+      return JSON.parse(userJson) as User;
+    } catch {
+      return null;
+    }
   }
 
-  clear() {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
+  /**
+   * Retorna el rol del usuario actual.
+   */
+  getRole(): Role | null {
+    const user = this.getUser();
+    return user ? user.role : null;
   }
 
-  isLoggedIn() {
+  /**
+   * Verifica existencia de credenciales.
+   */
+  hasCredentials(): boolean {
     return !!this.getToken();
+  }
+
+  /**
+   * Simulacro de Login.
+   */
+  login(credentials: any): Observable<AuthResponse> {
+    const mockResponse: AuthResponse = {
+      token: 'fake-token-321',
+      user: {
+        id: '1',
+        nombre: 'Maria',
+        email: credentials.email,
+        role: 'ADMIN',
+      },
+    };
+
+    localStorage.setItem(this.TOKEN_KEY, mockResponse.token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(mockResponse.user));
+
+    return of(mockResponse);
+  }
+
+  /**
+   * Cierra la sesión activa.
+   */
+  logout() {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
   }
 }
 
