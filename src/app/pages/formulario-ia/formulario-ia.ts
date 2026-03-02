@@ -39,14 +39,20 @@ export class FormularioIa {
   enviarConsulta() {
     if (this.form.valid) {
       this.cargando.set(true);
+
       const payload: any = {
-        ...this.form.value,
-        restauranteId: '696ba6825fe46fff9ddceb06',
-        alergenosEvitar: [],
+        edad: Number(this.form.value.edad),
+        peso: Number(this.form.value.pesoKg),
+        altura: Number(this.form.value.alturaCm),
+        objetivo: this.form.value.objetivo,
+        restauranteId: '67b864a6a578a10f0891d4e4',
       };
+
+      console.log('Enviado a IA :', payload);
 
       this.recService.obtenerRecomendacion(payload).subscribe({
         next: (res) => {
+          console.log('Datos recibidos de la IA:', JSON.stringify(res, null, 2));
           this.resultado.set(res);
           this.cargando.set(false);
         },
@@ -59,16 +65,12 @@ export class FormularioIa {
   }
 
   verDetalle(menu: MenuSuggestion) {
-    // Verificamos qué es 'p' para extraer el texto
-    const ids = menu.productos
-      .map((p: any) => {
-        // Si el backend te envía objetos, necesitamos p.nombre
-        // Usamos el nombre porque es lo que tu menú usa para generar el ID 'patatasbravas'
-        const valorParaId = p.nombre || p.id || '';
+    const resActual = this.resultado();
+    if (!resActual) return;
 
-        return String(valorParaId).trim().toLowerCase().replace(/\s+/g, ''); // Quita espacios
-      })
-      .filter((id) => id.length > 0) // Quita vacíos
+    const ids = menu.productos
+      .map((p: any) => p.id)
+      .filter((id) => !!id)
       .join(',');
 
     console.log('IDs limpios para la URL:', ids);
@@ -77,6 +79,7 @@ export class FormularioIa {
       queryParams: {
         modo: 'armar',
         recomendados: ids,
+        kcal: resActual.kcalObjetivo,
       },
     });
   }
