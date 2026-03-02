@@ -38,7 +38,7 @@
   height: calc(100dvh - 20px);
   display: grid;
   grid-template-rows: auto 1fr;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding: 18px;
   gap: 12px;
 }

@@ -3,7 +3,6 @@ export type Role = 'CLIENTE' | 'BARRA' | 'CAMARERO' | 'ADMIN';
 
 /** Representación del usuario autenticado */
 export interface User {
-  id: string;
   nombre: string;
   email: string;
   role: Role;
