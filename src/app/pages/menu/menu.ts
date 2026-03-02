@@ -16,6 +16,9 @@ type ProductoVM = {
   categoria?: string;
   qty: number;
   kcal?: number;
+  proteinas?: number;
+  grasas?: number;
+  carbohidratos?: number;
 };
 
 @Component({
@@ -34,12 +37,13 @@ export class Menu implements OnInit {
   productos: ProductoVM[] = [];
   mesaId: string | null = null;
   idsRecomendados: string[] = [];
+  kcalObjetivoIA: number | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private menuService: MenuService,
-    private auth: AuthService,
+    public auth: AuthService,
     private pedidoStore: PedidoStore,
   ) {}
 
@@ -57,14 +61,18 @@ export class Menu implements OnInit {
       this.modo = m === 'ver' ? 'ver' : 'armar';
       this.mesaId = q.get('mesa');
       const rec = q.get('recomendados');
+      const kcal = q.get('kcal');
+
+      console.log('Que datos recibe menú de backend', rec, kcal);
+
+      this.kcalObjetivoIA = kcal ? Number(kcal) : null;
 
       this.idsRecomendados = rec
         ? rec
             .split(',')
+            .map((id) => id.trim())
             .filter((id) => id.length > 0)
-            .map((id) => id.trim().toLowerCase().replace(/\s+/g, ''))
         : [];
-
       console.log('IDs IA Sincronizados:', this.idsRecomendados);
     });
 
@@ -72,15 +80,14 @@ export class Menu implements OnInit {
   }
 
   private categoriaDesdeTags(tags: any): string {
-  const t = (Array.isArray(tags) ? tags : [])
-    .map((x: any) => String(x).toUpperCase());
+    const t = (Array.isArray(tags) ? tags : []).map((x: any) => String(x).toUpperCase());
 
-  if (t.includes('ENTRANTE')) return 'Entrantes';
-  if (t.includes('PRINCIPAL')) return 'Principales';
-  if (t.includes('POSTRE')) return 'Postres';
-  if (t.includes('BEBIDA')) return 'Bebidas';
-  return 'Otros';
-}
+    if (t.includes('ENTRANTE')) return 'Entrantes';
+    if (t.includes('PRINCIPAL')) return 'Principales';
+    if (t.includes('POSTRE')) return 'Postres';
+    if (t.includes('BEBIDA')) return 'Bebidas';
+    return 'Otros';
+  }
 
   private cargarMenuYSincronizar() {
     this.menuService.getMenu().subscribe({
@@ -94,33 +101,35 @@ export class Menu implements OnInit {
         this.productos = lista.map((p: any) => {
           // GENERACIÓN DE ID ULTRA-SIMPLE:
           // Si hay ID lo usamos, si no, el nombre. Siempre a minúsculas y sin espacios.
-const rawId =
-  p.id?.$oid ||
-  p._id?.$oid ||
-  p._id?.hexString ||     // "" CLAVE para ObjectId Java
-  p.id?.hexString ||
-  (typeof p.id === 'string' ? p.id : null) ||
-  (typeof p._id === 'string' ? p._id : null) ||
-  null;
-
-const idLimpio = rawId ? String(rawId) : '';
-const idEsValido = /^[a-fA-F0-9]{24}$/.test(idLimpio);
+          const rawId =
+            p.id?.$oid ||
+            p._id?.$oid ||
+            p._id?.hexString || // "" CLAVE para ObjectId Java
+            p.id?.hexString ||
+            (typeof p.id === 'string' ? p.id : null) ||
+            (typeof p._id === 'string' ? p._id : null) ||
+            null;
+          const idLimpio = rawId ? String(rawId) : '';
+          const idEsValido = /^[a-fA-F0-9]{24}$/.test(idLimpio);
 
           // Sincronizar cantidad
           const coincidencia = itemsEnCarrito.find(
             (i) => String(i.productoId).toLowerCase() === idLimpio && !i.enviado,
           );
 
-         return {
-  id: idLimpio,
-  nombre: p.nombre || 'Sin nombre',
-  descripcion: p.descripcion || '',
-  precioConIva: Number(p.precioConIva ?? p.precio ?? 0),
-  imagen: p.imagen,
-  categoria: this.categoriaDesdeTags(p.tags),
-  kcal: p.kcal || 0,
-  qty: coincidencia ? Number(coincidencia.cantidad) : 0,
-};
+          return {
+            id: idLimpio,
+            nombre: p.nombre || 'Sin nombre',
+            descripcion: p.descripcion || '',
+            precioConIva: Number(p.precioConIva ?? p.precio ?? 0),
+            imagen: p.imagen,
+            categoria: this.categoriaDesdeTags(p.tags),
+            kcal: p.kcal || 0,
+            qty: coincidencia ? Number(coincidencia.cantidad) : 0,
+            proteinas: p.proteinas || 0,
+            grasas: p.grasas || 0,
+            carbohidratos: p.carbohidratos || 0,
+          };
         });
 
         console.log('PRODUCTOS PROCESADOS:', this.productos);
