@@ -3,14 +3,10 @@
   <div class="hero-spotlight"></div>
 
   <div class="content-wrapper">
-    <div class="top-nav">
-      <button type="button" class="btn-back" (click)="irAlInicio()">‹ Volver</button>
-    </div>
-
     <div class="glass-panel">
       <header class="ia-header">
         <div class="logo-mini">
-          <h1>Smart MENU</h1>
+          <h1>SmartMENU</h1>
         </div>
         <p class="ia-subtitle">Introduce tus datos para una recomendación precisa</p>
       </header>
@@ -29,7 +25,9 @@
               formControlName="edad"
               placeholder="Ej: 28"
             />
-            @if (form.get('edad')?.invalid && (form.get('edad')?.touched || form.get('edad')?.dirty)) {
+            @if (
+              form.get('edad')?.invalid && (form.get('edad')?.touched || form.get('edad')?.dirty)
+            ) {
               <small class="ia-subtitle">Edad válida: 12 - 99</small>
             }
           </div>
@@ -45,7 +43,10 @@
               formControlName="pesoKg"
               placeholder="Ej: 80"
             />
-            @if (form.get('pesoKg')?.invalid && (form.get('pesoKg')?.touched || form.get('pesoKg')?.dirty)) {
+            @if (
+              form.get('pesoKg')?.invalid &&
+              (form.get('pesoKg')?.touched || form.get('pesoKg')?.dirty)
+            ) {
               <small class="ia-subtitle">Peso válido: 30 - 250</small>
             }
           </div>
@@ -61,7 +62,10 @@
               formControlName="alturaCm"
               placeholder="Ej: 175"
             />
-            @if (form.get('alturaCm')?.invalid && (form.get('alturaCm')?.touched || form.get('alturaCm')?.dirty)) {
+            @if (
+              form.get('alturaCm')?.invalid &&
+              (form.get('alturaCm')?.touched || form.get('alturaCm')?.dirty)
+            ) {
               <small class="ia-subtitle">Altura válida: 100 - 250</small>
             }
           </div>
@@ -93,7 +97,7 @@
         </button>
 
         @if (form.invalid && (form.touched || form.dirty)) {
-          <p class="ia-subtitle" style="margin-top: 10px;">
+          <p class="ia-subtitle" style="margin-top: 10px">
             Revisa los campos (edad, peso y altura) para poder generar sugerencias.
           </p>
         }
@@ -125,7 +129,7 @@
 
                 <div class="menu-stats">
                   <span>{{ menu.kcalTotal }} kcal</span>
-                  <span class="price-text">{{ menu.precioTotal | number:'1.2-2' }} €</span>
+                  <span class="price-text">{{ menu.proteTotal | number: '1.2-2' }} €</span>
                 </div>
               </div>
 
