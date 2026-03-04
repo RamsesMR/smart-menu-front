@@ -2,7 +2,7 @@
 
 Sistema de gestión de pedidos y carta digital inteligente para restauración. Este repositorio contiene la aplicación cliente desarrollada en Angular.
 
----
+## ![smartmenu](25Feb-Frontend-version3.gif)
 
 ## 🚀 Inicio Rápido
 

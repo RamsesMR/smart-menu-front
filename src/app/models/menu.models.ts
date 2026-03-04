@@ -1,6 +1,7 @@
 /** Representación técnica de un plato o bebida */
 export interface Producto {
-  id: string;
+  id?: any;
+  _id?: any;
   nombre: string;
   descripcion: string;
   precio: number;

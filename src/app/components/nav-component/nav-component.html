@@ -1,21 +1,27 @@
 <nav class="smart-nav">
   <div class="nav-container">
     <a routerLink="/inicio" routerLinkActive="active" class="nav-item">
-      <span class="icon">🏠</span>
+      <span class="icon"><i class="fa-solid fa-house"></i></span>
       <span class="label">Inicio</span>
     </a>
     <a routerLink="/menu" routerLinkActive="active" class="nav-item">
-      <span class="icon">📖</span>
-      <span class="label">Carta</span>
+      <span class="icon"><i class="fa-solid fa-bars"></i></span>
+      <span class="label">Menú</span>
     </a>
     <a routerLink="/pedir" routerLinkActive="active" class="nav-item">
-      <span class="icon">🛒</span>
-      <span class="label">Mi Pedido</span>
+      <span class="icon"><i class="fa-solid fa-cart-shopping"></i></span>
+      <span class="label">Carrito</span>
     </a>
-    @if (esPersonal) {
+    @if (userRole === 'EMPLEADO' || userRole === 'EMPRESA') {
       <a routerLink="/barra" routerLinkActive="active" class="nav-item">
-        <span class="icon">🍻</span>
-        <span class="label">Barra</span>
+        <span class="icon"><i class="fa-solid fa-kitchen-set"></i></span>
+        <span class="label">Cocina</span>
+      </a>
+    }
+    @if (userRole === 'EMPRESA') {
+      <a routerLink="/admin" routerLinkActive="active" class="nav-item">
+        <i class="fa-solid fa-gears"></i>
+        <span>Admin</span>
       </a>
     }
   </div>

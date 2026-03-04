@@ -1,58 +1,29 @@
-<div class="home">
-  
-  <header class="brand">
-    <span class="logo" aria-hidden="true">🍽️</span>
-    <h1 class="title">SmartMenu</h1>
-    <p class="subtitle">Elige una opción para comenzar</p>
-  </header>
+<div class="home-hero">
+  <div class="hero-bg"></div>
+  <div class="hero-spotlight"></div>
 
-  <nav class="actions" aria-label="Opciones principales">
-    <button type="button" class="action-card" (click)="goToMenu()">
-      <span class="action-icon" aria-hidden="true">📖</span>
-      <div class="action-text">
-        <h2 class="action-title">Ver menú</h2>
-        <p class="action-desc">Explora nuestros platos y bebidas</p>
+  <div class="content-wrapper">
+    <header class="brand">
+      <div class="logo-container">
+        <div class="logo-icon">SM</div>
+        <h1 class="logo-text">Smart<span>Menu</span></h1>
       </div>
-      <span class="chev" aria-hidden="true">›</span>
-    </button>
+      <p class="subtitle">Descubre una nueva forma de pedir</p>
+    </header>
 
-    <button type="button" class="action-card" (click)="goToBuild()">
-      <span class="action-icon" aria-hidden="true">🧩</span>
-      <div class="action-text">
-        <h2 class="action-title">Armar mi menú</h2>
-        <p class="action-desc">Elige y personaliza tu pedido</p>
-      </div>
-      <span class="chev" aria-hidden="true">›</span>
-    </button>
-  </nav>
+    <nav class="actions">
+      <button type="button" class="action-card ia-special" (click)="goToIA()">
+        <div class="action-info">
+          <h2 class="action-title">Menú Inteligente</h2>
+          <p class="action-desc">Basado en tus objetivos de salud</p>
+        </div>
+      </button>
 
+      <button type="button" class="action-card" (click)="goToBuild()">
+        <div class="action-info">
+          <h2 class="action-title">Menú Completo</h2>
+          <p class="action-desc">Explora y gestiona tu pedido</p>
+        </div>
+      </button>
+    </nav>
 </div>
-
-<button
-  type="button"
-  class="fab"
-  (click)="openCallService()"
-  aria-label="Llamar al servicio de camarero"
->
-  <span aria-hidden="true">🔔</span>
-</button>
-
-@if (callModalOpen) {
-  <div class="backdrop" (click)="closeCallService()" role="presentation"></div>
-  
-  <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
-    <h2 id="modal-title" class="modal-title">¿Llamar al servicio?</h2>
-    <p class="modal-desc">Avisaremos al camarero para que se acerque a tu mesa lo antes posible.</p>
-    
-    <div class="modal-actions">
-      <button type="button" class="btn ghost" (click)="closeCallService()">Cancelar</button>
-      <button type="button" class="btn primary" (click)="confirmCallService()">Llamar ahora</button>
-    </div>
-  </div>
-}
-
-@if (toastMsg()) {
-  <div class="toast" role="alert" aria-live="polite">
-    {{ toastMsg() }}
-  </div>
-}

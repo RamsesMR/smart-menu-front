@@ -1,0 +1,145 @@
+<div class="ia-screen">
+  <div class="hero-bg"></div>
+  <div class="hero-spotlight"></div>
+
+  <div class="content-wrapper">
+    <div class="glass-panel">
+      <header class="ia-header">
+        <div class="logo-mini">
+          <h1>SmartMENU</h1>
+        </div>
+        <p class="ia-subtitle">Introduce tus datos para una recomendación precisa</p>
+      </header>
+
+      <!-- "" FORM REACTIVO -->
+      <form [formGroup]="form" (ngSubmit)="enviarConsulta()">
+        <div class="input-grid-row">
+          <div class="field">
+            <label>Edad</label>
+            <input
+              class="custom-input"
+              type="number"
+              inputmode="numeric"
+              min="12"
+              max="99"
+              formControlName="edad"
+              placeholder="Ej: 28"
+            />
+            @if (
+              form.get('edad')?.invalid && (form.get('edad')?.touched || form.get('edad')?.dirty)
+            ) {
+              <small class="ia-subtitle">Edad válida: 12 - 99</small>
+            }
+          </div>
+
+          <div class="field">
+            <label>Peso (kg)</label>
+            <input
+              class="custom-input"
+              type="number"
+              inputmode="decimal"
+              min="30"
+              max="250"
+              formControlName="pesoKg"
+              placeholder="Ej: 80"
+            />
+            @if (
+              form.get('pesoKg')?.invalid &&
+              (form.get('pesoKg')?.touched || form.get('pesoKg')?.dirty)
+            ) {
+              <small class="ia-subtitle">Peso válido: 30 - 250</small>
+            }
+          </div>
+
+          <div class="field">
+            <label>Altura (cm)</label>
+            <input
+              class="custom-input"
+              type="number"
+              inputmode="numeric"
+              min="100"
+              max="250"
+              formControlName="alturaCm"
+              placeholder="Ej: 175"
+            />
+            @if (
+              form.get('alturaCm')?.invalid &&
+              (form.get('alturaCm')?.touched || form.get('alturaCm')?.dirty)
+            ) {
+              <small class="ia-subtitle">Altura válida: 100 - 250</small>
+            }
+          </div>
+        </div>
+
+        <div class="selectors-group">
+          <div class="field">
+            <label>Preferencia de Dieta</label>
+            <select class="custom-select" formControlName="dieta">
+              <option value="NORMAL">Normal / Omnívora</option>
+              <option value="VEGETARIANA">Vegetariana</option>
+              <option value="VEGANA">Vegana</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Tu Objetivo</label>
+            <select class="custom-select" formControlName="objetivo">
+              <option value="PERDER_PESO">Perder Peso</option>
+              <option value="MANTENER">Mantener Peso</option>
+              <option value="GANAR_MUSCULO">Ganar Músculo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- "" BOTÓN: se habilita cuando el form es válido -->
+        <button class="btn-generate" type="submit" [disabled]="cargando() || form.invalid">
+          {{ cargando() ? 'Analizando Perfil...' : 'Generar Sugerencias' }}
+        </button>
+
+        @if (form.invalid && (form.touched || form.dirty)) {
+          <p class="ia-subtitle" style="margin-top: 10px">
+            Revisa los campos (edad, peso y altura) para poder generar sugerencias.
+          </p>
+        }
+      </form>
+    </div>
+
+    @if (resultado()) {
+      <div class="results-container">
+        <div class="results-header">
+          <h2>Sugerencias Inteligentes</h2>
+          <span class="kcal-total-badge">{{ resultado()?.kcalObjetivo }} kcal objetivo</span>
+        </div>
+
+        <div class="grid-results">
+          @for (menu of resultado()?.menus; track $index) {
+            <div class="result-card">
+              <div>
+                <div class="tag">Opción {{ $index + 1 }}</div>
+                <div class="menu-name">Menú sugerido</div>
+
+                <div class="platos-sugeridos-list">
+                  @for (p of menu.productos; track $index) {
+                    <div class="plato-item">
+                      <span class="plato-nombre">{{ p.nombre }}</span>
+                      <span class="plato-kcal">{{ p.kcal }} kcal</span>
+                    </div>
+                  }
+                </div>
+
+                <div class="menu-stats">
+                  <span>{{ menu.kcalTotal }} kcal</span>
+                  <span class="price-text">{{ menu.proteTotal | number: '1.2-2' }} €</span>
+                </div>
+              </div>
+
+              <button class="btn-detail" type="button" (click)="verDetalle(menu)">
+                Ver Platos e Ir al Menú
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

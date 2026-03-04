@@ -10,7 +10,7 @@ import type { CreateOrderRequest, OrderResponse } from '../models/order.models';
  */
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
-  constructor(private api: ApiClient) {}
+  constructor(private api: ApiClient) { }
 
   /**
    * Envía una nueva comanda al sistema.
@@ -25,7 +25,7 @@ export class OrdersService {
    * Recupera el historial de pedidos del cliente actual.
    * @endpoint GET /pedidos/mios
    */
-  myOrders() {
-    return this.api.get<OrderResponse[]>(endpoints.orders.myOrders);
+  myOrders(usuarioId: string) {
+    return this.api.get<OrderResponse[]>(`/pedido/usuario/${usuarioId}`);
   }
 }

@@ -19,7 +19,7 @@ export const routes: Routes = [
   {
     path: 'inicio',
     canActivate: [roleGuard],
-    data: { roles: ['CLIENTE', 'BARRA', 'CAMARERO', 'ADMIN'] },
+    data: { roles: ['CLIENTE', 'EMPRESA', 'EMPLEADO'] },
     loadComponent: () => import('./pages/inicio/inicio').then((m) => m.Inicio),
   },
 
@@ -27,7 +27,7 @@ export const routes: Routes = [
   {
     path: 'menu',
     canActivate: [roleGuard],
-    data: { roles: ['CLIENTE', 'BARRA', 'CAMARERO', 'ADMIN'] },
+    data: { roles: ['CLIENTE', 'EMPRESA', 'EMPLEADO'] },
     loadComponent: () => import('./pages/menu/menu').then((m) => m.Menu),
   },
 
@@ -35,7 +35,7 @@ export const routes: Routes = [
   {
     path: 'pedir',
     canActivate: [roleGuard],
-    data: { roles: ['CLIENTE', 'BARRA', 'CAMARERO', 'ADMIN'] },
+    data: { roles: ['CLIENTE', 'EMPRESA', 'EMPLEADO'] },
     loadComponent: () => import('./pages/pedir/pedir').then((m) => m.Pedir),
   },
 
@@ -43,8 +43,23 @@ export const routes: Routes = [
   {
     path: 'barra',
     canActivate: [roleGuard],
-    data: { roles: ['BARRA', 'CAMARERO', 'ADMIN'] },
+    data: { roles: ['EMPRESA', 'EMPLEADO'] },
     loadComponent: () => import('./pages/barra/barra').then((m) => m.Barra),
+  },
+
+  /** Pantalla del formulario IA */
+  {
+    path: 'formulario-ia',
+    canActivate: [roleGuard],
+    data: { roles: ['CLIENTE', 'EMPRESA', 'EMPLEADO'] },
+    loadComponent: () => import('./pages/formulario-ia/formulario-ia').then((m) => m.FormularioIa),
+  },
+
+  {
+    path: 'admin',
+    canActivate: [roleGuard],
+    data: { roles: ['EMPRESA'] },
+    loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
   },
 
   /** Redirección por defecto al entrar en la raíz */

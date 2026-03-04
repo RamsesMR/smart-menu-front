@@ -12,19 +12,15 @@ export const endpoints = {
     list: '/producto',
     one: (id: string) => `/producto/${id}`,
   },
-  /** Flujo del Cliente (App Móvil/Tablet) */
+  /** Flujo del Cliente y Gestión de Barra */
   orders: {
-    create: '/pedidos',
-    myOrders: '/pedidos/mios',
+    create: '/pedido', // Cambiado a singular para coincidir con el controlador
+    list: '/pedido',
+    status: (id: string) => `/pedido/${id}/estado`,
   },
-  /** Llamadas de servicio a mesa */
+
+  // Borra o ignora el bloque "pedidos" duplicado para evitar errores
   service: {
     call: '/servicio/llamar',
-  },
-  /** Gestión de Barra y Cocina */
-  pedidos: {
-    list: '/pedido',
-    update: '/pedido',
-    one: (id: string) => `/pedido/${id}`,
   },
 };

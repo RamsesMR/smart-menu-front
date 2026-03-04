@@ -1,0 +1,228 @@
+.ia-screen {
+  min-height: 100dvh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 40px 20px;
+}
+
+/* Reutilizamos el fondo del inicio para coherencia */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a; /* O la imagen de comida si prefieres, pero oscura */
+  z-index: 1;
+}
+
+.hero-spotlight {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(214, 177, 94, 0.05) 0%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  z-index: 2;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 500px;
+}
+
+.top-nav {
+  margin-bottom: 20px;
+}
+.btn-back {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Panel de Cristal */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.ia-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.logo-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ia-subtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+}
+
+/* Formulario */
+.input-grid-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.custom-input,
+.custom-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px;
+  color: white;
+  transition: all 0.3s;
+}
+
+.custom-input:focus,
+.custom-select:focus {
+  border-color: var(--accent);
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.selectors-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.btn-generate {
+  width: 100%;
+  background: var(--accent);
+  color: black;
+  border: none;
+  padding: 16px;
+  border-radius: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-generate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Resultados */
+.results-container {
+  margin-top: 40px;
+}
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.kcal-total-badge {
+  background: rgba(214, 177, 94, 0.15);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.grid-results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag {
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.menu-name {
+  font-size: 18px;
+  margin: 4px 0;
+  color: white;
+}
+.menu-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+.price-text {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.btn-detail {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.platos-sugeridos-list {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.plato-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 20px;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+}
+
+.plato-item:last-child {
+  border-bottom: none;
+}
+
+.plato-nombre {
+  color: #fff;
+  font-weight: 500;
+}
+
+.plato-kcal {
+  color: #fdbb2d;
+  font-size: 0.8rem;
+}

@@ -7,13 +7,13 @@
   </header>
 
   <main class="barra-columnas">
-    <section class="kanban-col" aria-labelledby="header-nuevos">
-      <h2 id="header-nuevos" class="col-header">Nuevos Pedidos</h2>
+    <section class="kanban-col" aria-labelledby="header-recibidos">
+      <h2 id="header-recibidos" class="col-header">Recibidos</h2>
       <div class="lista-pedidos">
-        @for (mesa of getMesasEnEstado('NUEVO'); track mesa) {
+        @for (mesa of getMesasEnEstado('RECIBIDO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'NUEVO'); track p.id) {
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'RECIBIDO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -26,10 +26,11 @@
     <section class="kanban-col" aria-labelledby="header-preparando">
       <h2 id="header-preparando" class="col-header">Preparando</h2>
       <div class="lista-pedidos">
-        @for (mesa of getMesasEnEstado('EN_PREPARACION'); track mesa) {
+        @for (mesa of getMesasEnEstado('PREPARANDO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'EN_PREPARACION'); track p.id) {
+           
+              @for (p of getPedidosDeMesaEnEstado(mesa, 'PREPARANDO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -45,7 +46,8 @@
         @for (mesa of getMesasEnEstado('LISTO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track p.id) {
+         
+              @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -55,13 +57,15 @@
       </div>
     </section>
 
+
     <section class="kanban-col" aria-labelledby="header-entregados">
       <h2 id="header-entregados" class="col-header">Entregados</h2>
       <div class="lista-pedidos">
         @for (mesa of getMesasEnEstado('ENTREGADO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track p.id) {
+            
+              @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track (p.id || $index)) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -75,8 +79,30 @@
 
 <ng-template #ticket let-p>
   <article class="tarjeta-pedido">
+    <!-- CABECERA DEL TICKET -->
+    <header class="ticket-header">
+      <div class="ticket-left">
+        <div class="ticket-codigo">
+          {{ p.codigo || ('#' + (p.id | slice:0:6)) }}
+        </div>
+        <div class="ticket-mesa">
+          {{ p.mesaId }}
+        </div>
+      </div>
+
+      <div class="ticket-right">
+        <div class="ticket-hora">
+          {{ p.fechaCreacion | date:'HH:mm' }}
+        </div>
+        <div class="ticket-total">
+          {{ p.totalPedido | number:'1.2-2' }} €
+        </div>
+      </div>
+    </header>
+
+    <!-- ITEMS -->
     <section class="tarjeta-items">
-      @for (item of p.items; track $index) {
+      @for (item of p.lineasPedido; track $index) {
         <div class="item-linea">
           <strong class="item-cantidad">{{ item.cantidad }}x</strong>
           <span class="item-nombre">{{ item.nombreActual }}</span>
@@ -87,9 +113,10 @@
       }
     </section>
 
+    <!-- BOTONES -->
     <footer class="acciones-grid">
       @if (puedePasarAEnPreparacion(p)) {
-        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'EN_PREPARACION')">
+        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'PREPARANDO')">
           Preparar
         </button>
       }

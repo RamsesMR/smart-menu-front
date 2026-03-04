@@ -70,4 +70,8 @@ export class ApiClient {
   delete<T>(path: string) {
     return this.http.delete<T>(this.join(path));
   }
+
+  patch<T>(path: string, body: any) {
+    return this.http.patch<T>(this.join(path), body);
+  }
 }

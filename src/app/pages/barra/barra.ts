@@ -1,73 +1,84 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PedidoService } from '../../api/pedido-service';
 import { PedidoStore } from '../../state/pedido.store';
+import { interval, Subscription } from 'rxjs';
 
 /**
  * Estructura visual de un pedido para la interfaz de barra.
  */
 type PedidoVM = {
   id: string;
-  estadoPedido: string;
+  estado: string;
+  codigo: string;
   nota: string;
-  items: any[];
-  total: number;
+  lineasPedido: any[];
+  totalPedido: number;
   fechaCreacion: string;
-  mesa: string;
+  mesaId: string;
 };
 
-/**
- * Componente para la gestión de pedidos en cocina y barra.
- * Permite visualizar comandas agrupadas por mesa y cambiar sus estados.
- */
 @Component({
   selector: 'app-barra',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './barra.html',
   styleUrl: './barra.css',
 })
 export class Barra implements OnInit {
-  /** Listado global de pedidos cargados. */
   pedidos: PedidoVM[] = [];
-  /** Indica si hay una operación de carga en curso. */
   cargando = false;
-  /** Almacena mensajes de error en la comunicación. */
   error = '';
-  /** Filtro de estado seleccionado para la vista. */
-  estadoSeleccionado: string = 'NUEVO';
+  estadoSeleccionado: string = 'RECIBIDO';
+  mensajeAccion = '';
+  private pollSub?: Subscription;
 
   constructor(
     private pedidoService: PedidoService,
     private pedidoStore: PedidoStore,
   ) {}
 
-  /**
-   * Inicializa el componente cargando los pedidos.
-   */
   ngOnInit() {
+    console.log('barra iniciando');
     this.cargarPedidos();
+    this.pollSub = interval(5000).subscribe(() => {
+      this.cargarPedidos();
+    });
+  }
+
+  ngOnDestroy() {
+    this.pollSub?.unsubscribe();
   }
 
   /**
-   * Convierte identificadores complejos en cadenas de texto simples.
-   * @param raw ID en formato string o formato objeto de base de datos.
-   * @returns Cadena de texto con el ID normalizado.
+   * Normaliza los IDs de MongoDB (_id o id) a string.
    */
   private normalizarId(raw: any): string {
     if (!raw) return '';
-    if (typeof raw === 'string') return raw;
-    if (raw.$oid) return String(raw.$oid);
-    if (raw.hexString) return String(raw.hexString);
-    try {
-      return JSON.stringify(raw);
-    } catch {
-      return String(raw);
+
+    // si ya viene string, intentamos extraer 24 hex
+    if (typeof raw === 'string') {
+      const s = raw.trim();
+      const m = s.match(/[a-fA-F0-9]{24}/);
+      return m ? m[0] : s;
     }
+
+    // formato típico Mongo Extended JSON
+    if (raw.$oid) return String(raw.$oid).trim();
+
+    // otros formatos comunes
+    if (raw.hexString) return String(raw.hexString).trim();
+    if (raw.id) return this.normalizarId(raw.id);
+    if (raw._id) return this.normalizarId(raw._id);
+
+    // último intento: convertir a string y sacar 24 hex
+    const s = String(raw);
+    const m = s.match(/[a-fA-F0-9]{24}/);
+    return m ? m[0] : '';
   }
 
   /**
-   * Obtiene los pedidos desde el servidor o el historial local si falla la conexión.
+   * Carga real desde el Backend.
    */
   cargarPedidos() {
     this.cargando = true;
@@ -75,148 +86,127 @@ export class Barra implements OnInit {
 
     this.pedidoService.obtenerPedidos().subscribe({
       next: (resp: any[]) => {
-        // Lógica de carga desde backend
-      },
-      error: (err) => {
-        console.warn('Backend no detectado. Cargando historial de rondas del cliente...');
-        const historialComandas = this.pedidoStore.obtenerHistorial();
-        const estadosModificados = JSON.parse(localStorage.getItem('mock_estados_pedidos') || '{}');
+        console.log('[BARRA] resp[0] RAW', resp?.[0]);
+        console.log('[BARRA] resp RAW', resp);
 
-        if (historialComandas.length > 0) {
-          this.pedidos = historialComandas.map((comanda: any) => ({
-            id: comanda.id,
-            estadoPedido: estadosModificados[comanda.id] || comanda.estadoPedido || 'NUEVO',
-            nota: comanda.nota ?? '',
-            items: comanda.items ?? [],
-            total: Number(comanda.total ?? 0),
-            fechaCreacion: comanda.fechaCreacion ?? '',
-            mesa: comanda.mesa ?? '',
-          }));
-        } else {
-          this.error = 'No hay pedidos confirmados aún.';
-          this.pedidos = [];
-        }
+        this.pedidos = (resp ?? []).map((p: any) => ({
+          id: this.normalizarId(p.id ?? p._id ?? p?._Id),
+          estado: p.estado && p.estado !== 'null' ? p.estado : 'RECIBIDO',
+          codigo: p.codigo ?? '',
+          nota: p.nota ?? '',
+          lineasPedido: p.lineasPedido ?? [],
+          totalPedido: Number(p.totalPedido ?? 0),
+          fechaCreacion: p.fechaCreacion ?? '',
+          mesaId: p.mesaId ?? '',
+        }));
+
+        console.log('[BARRA] vm[0]', this.pedidos?.[0]);
+
+        this.cargando = false;
+      },
+      error: (e) => {
+        console.error('[BARRA] error obtenerPedidos', e);
         this.cargando = false;
       },
     });
   }
 
   /**
-   * Filtra pedidos por un estado específico.
-   * @param estado Nombre del estado a filtrar.
-   * @returns Listado de pedidos que coinciden con el estado.
+   * Actualiza el estado en el Backend y refresca la vista.
    */
-  getPedidosPorEstado(estado: string): PedidoVM[] {
-    return this.pedidos.filter((p) => {
-      const estadoPedido = p.estadoPedido ? p.estadoPedido.toUpperCase() : 'NUEVO';
-      return estadoPedido === estado.toUpperCase();
+  actualizarEstado(p: PedidoVM, nuevoEstado: string) {
+    console.log('[BARRA] click actualizarEstado', {
+      id: p.id,
+      estadoActual: p.estado,
+      nuevoEstado,
+    });
+
+    // 1) Protección: si el id es temporal o vacío, NO llames al backend
+    // ObjectId válido de Mongo => 24 chars hex
+    const esObjectId = /^[a-fA-F0-9]{24}$/.test((p.id || '').trim());
+
+    if (!esObjectId) {
+      console.error('[BARRA] ID inválido para backend (no es ObjectId)', p.id, p);
+      this.mensajeAccion =
+        '❌ Este pedido no tiene un ID válido (Mongo ObjectId). Revisa la serialización del backend (id debe venir como string).';
+      return;
+    }
+
+    this.mensajeAccion = `Actualizando pedido ${p.id}...`;
+
+    this.pedidoService.actualizarEstadoPedido(p.id, nuevoEstado).subscribe({
+      next: (r) => {
+        console.log('[BARRA] OK actualizarEstadoPedido', r);
+
+        // 2) Actualizamos UI
+        p.estado = nuevoEstado;
+
+        this.mensajeAccion = `Pedido de la ${p.mesaId} marcado como ${this.textoEstadoBonito(nuevoEstado)}`;
+        localStorage.setItem('ultimo_estado_pedido', nuevoEstado);
+        setTimeout(() => (this.mensajeAccion = ''), 3000);
+
+        // 3) OPCIONAL: recargar para asegurar consistencia (si quieres)
+        // this.cargarPedidos();
+      },
+      error: (err) => {
+        console.error('[BARRA] ERROR actualizarEstadoPedido', err);
+
+        const msg =
+          typeof err?.error === 'string'
+            ? err.error
+            : err?.error?.message || err?.message || 'Error desconocido';
+
+        this.mensajeAccion = `❌ No se pudo actualizar el estado: ${msg}`;
+      },
     });
   }
 
   /**
-   * Cambia el filtro de estado actual para la navegación.
-   * @param estado Nuevo estado seleccionado.
+   * Lógica de filtrado y visualización
    */
+  pedidosFiltrados() {
+    return this.pedidos.filter((p) => p.estado === this.estadoSeleccionado);
+  }
+
+  getMesasEnEstado(estado: string) {
+    return [...new Set(this.pedidos.filter((p) => p.estado === estado).map((p) => p.mesaId))];
+  }
+
+  getPedidosDeMesaEnEstado(mesa: string, estado: string): PedidoVM[] {
+    return this.pedidos.filter((p) => p.mesaId === mesa && p.estado === estado);
+  }
+
+  actualizarEstadoMesaCompleta(mesa: string, nuevoEstado: string) {
+    // Buscamos los pedidos de esa mesa que NO están en el nuevo estado todavía
+    const pedidosMesa = this.pedidos.filter((p) => p.mesaId === mesa && p.estado !== nuevoEstado);
+    pedidosMesa.forEach((p) => this.actualizarEstado(p, nuevoEstado));
+  }
+
   cambiarEstadoFiltro(estado: string) {
     this.estadoSeleccionado = estado;
   }
 
-  /**
-   * Obtiene los pedidos filtrados según la selección actual.
-   * @returns Lista de pedidos filtrados.
-   */
-  pedidosFiltrados(): PedidoVM[] {
-    if (!this.estadoSeleccionado) return this.pedidos;
-    return this.pedidos.filter((p) => p.estadoPedido === this.estadoSeleccionado);
+  textoEstadoBonito(estado: string): string {
+    const mapa: Record<string, string> = {
+      RECIBIDO: 'Recibido',
+      PREPARANDO: 'En preparación',
+      LISTO: 'Listo para servir',
+      ENTREGADO: 'Entregado',
+      CANCELADO: 'Cancelado',
+    };
+    return mapa[estado] || estado;
   }
 
-  /**
-   * Traduce el estado técnico a un nombre legible.
-   * @param estado Estado técnico del pedido.
-   * @returns Nombre amigable del estado.
-   */
-  textoEstadoBonito(estado: string) {
-    switch (estado) {
-      case 'NUEVO':
-        return 'Nuevo';
-      case 'EN_PREPARACION':
-        return 'En preparación';
-      case 'LISTO':
-        return 'Listo';
-      case 'ENTREGADO':
-        return 'Entregado';
-      case 'CANCELADO':
-        return 'Cancelado';
-      default:
-        return estado;
-    }
-  }
-
-  /** Valida si un pedido nuevo puede empezar a prepararse. */
   puedePasarAEnPreparacion(p: PedidoVM) {
-    return p.estadoPedido === 'NUEVO';
+    return p.estado === 'RECIBIDO';
   }
-
-  /** Valida si un pedido en cocina puede marcarse como listo. */
   puedePasarAListo(p: PedidoVM) {
-    return p.estadoPedido === 'EN_PREPARACION';
+    return p.estado === 'PREPARANDO';
   }
-
-  /** Valida si un pedido listo puede marcarse como entregado. */
   puedePasarAEntregado(p: PedidoVM) {
-    return p.estadoPedido === 'LISTO';
+    return p.estado === 'LISTO';
   }
-
-  /** Valida si un pedido puede ser cancelado. */
   puedeCancelar(p: PedidoVM) {
-    return p.estadoPedido === 'NUEVO' || p.estadoPedido === 'EN_PREPARACION';
-  }
-
-  mensajeAccion = '';
-
-  /**
-   * Actualiza el estado de un pedido y lo persiste localmente.
-   * @param p Pedido a modificar.
-   * @param nuevoEstado Nuevo estado asignado.
-   */
-  actualizarEstado(p: PedidoVM, nuevoEstado: string) {
-    this.mensajeAccion = '';
-    p.estadoPedido = nuevoEstado;
-    const estadosLocales = JSON.parse(localStorage.getItem('mock_estados_pedidos') || '{}');
-    estadosLocales[p.id] = nuevoEstado;
-    localStorage.setItem('mock_estados_pedidos', JSON.stringify(estadosLocales));
-    this.pedidoStore.guardarEstado(nuevoEstado);
-    localStorage.setItem('ultimo_estado_pedido', nuevoEstado);
-  }
-
-  /**
-   * Obtiene identificadores de mesa únicos para un estado dado.
-   * @param estado Estado por el que filtrar las mesas.
-   * @returns Array de strings con los números de mesa.
-   */
-  getMesasEnEstado(estado: string): string[] {
-    const pedidos = this.pedidos.filter((p) => p.estadoPedido === estado);
-    const mesas = pedidos.map((p) => p.mesa);
-    return [...new Set(mesas)].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  }
-
-  /**
-   * Obtiene las rondas de una mesa específica en un estado concreto.
-   * @param mesa Identificador de la mesa.
-   * @param estado Estado de los pedidos a buscar.
-   * @returns Lista de pedidos que cumplen ambos criterios.
-   */
-  getPedidosDeMesaEnEstado(mesa: string, estado: string): PedidoVM[] {
-    return this.pedidos.filter((p) => p.mesa === mesa && p.estadoPedido === estado);
-  }
-
-  /**
-   * Cambia el estado de todos los pedidos de una mesa simultáneamente.
-   * @param mesa Identificador de la mesa.
-   * @param nuevoEstado Nuevo estado para todos los pedidos de dicha mesa.
-   */
-  actualizarEstadoMesaCompleta(mesa: string, nuevoEstado: string) {
-    const pedidosMesa = this.getPedidosDeMesaEnEstado(mesa, nuevoEstado);
-    pedidosMesa.forEach((p) => this.actualizarEstado(p, nuevoEstado));
+    return ['RECIBIDO', 'PREPARANDO'].includes(p.estado);
   }
 }

@@ -2,3 +2,23 @@
 <main>
   <router-outlet />
 </main>
+
+<button type="button" class="fab-bell" (click)="openCallService()">
+  <i class="fa-solid fa-bell fa-beat"></i>
+</button>
+
+@if (callModalOpen()) {
+  <div class="backdrop" (click)="closeCallService()"></div>
+  <div class="modal">
+    <h2 class="modal-title">¿Necesitas algo?</h2>
+    <p>Pulsa confirmar para avisar al personal de sala.</p>
+    <div class="modal-actions">
+      <button class="btn ghost" (click)="closeCallService()">Cancelar</button>
+      <button class="btn primary" (click)="confirmCallService()">Confirmar</button>
+    </div>
+  </div>
+}
+
+@if (toastMsg()) {
+  <div class="toast-global">{{ toastMsg() }}</div>
+}

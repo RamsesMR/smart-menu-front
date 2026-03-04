@@ -47,7 +47,7 @@ export class Login {
     /**
      * Inicia la suscripción al flujo de autenticación.
      */
-    this.auth.login(credentials).subscribe({
+    this.auth.login(credentials.email, credentials.password).subscribe({
       next: (response) => {
         console.log('Usuario autenticado', response.user.nombre);
         this.loading = false;
@@ -56,7 +56,7 @@ export class Login {
       error: (err) => {
         this.loading = false;
         this.error = 'Credenciales inválidas';
-        this.auth.logout();
+        this.auth.clear();
       },
       complete: () => {
         this.loading = false;

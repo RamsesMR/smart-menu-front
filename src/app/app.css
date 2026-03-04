@@ -1,5 +1,8 @@
 main {
-  padding-bottom: 80px; /* Deja espacio para que la barra no tape el contenido */
-  height: 100vh;
+  padding-bottom: 80px;
   overflow-y: auto;
+}
+
+.fab-bell {
+  z-index: 3000;
 }

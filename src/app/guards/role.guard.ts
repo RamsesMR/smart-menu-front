@@ -11,7 +11,7 @@ export const roleGuard: CanActivateFn = (route) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   //Si no hay credenciales, al login de cabeza
-  if (!auth.hasCredentials()) {
+  if (!auth.isLoggedIn()) {
     router.navigateByUrl('/login');
     return false;
   }

@@ -1,11 +1,11 @@
 /** Roles de usuario permitidos en el sistema */
-export type Role = 'CLIENTE' | 'BARRA' | 'CAMARERO' | 'ADMIN';
+export type Role = 'CLIENTE' | 'EMPRESA';
 
 /** Representación del usuario autenticado */
 export interface User {
   nombre: string;
   email: string;
-  role: Role;
+  rol: Role;
   mesaId?: string;
 }
 

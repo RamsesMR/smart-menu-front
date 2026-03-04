@@ -22,10 +22,10 @@ export class Inicio {
   constructor(private router: Router) {}
 
   /**
-   * Navega hacia la vista de la carta en modo lectura.
+   * Navega hacia la vista de la carta en modo IA.
    */
-  goToMenu() {
-    this.router.navigate(['/menu'], { queryParams: { modo: 'ver' } });
+  goToIA() {
+    this.router.navigate(['/formulario-ia']);
   }
 
   /**

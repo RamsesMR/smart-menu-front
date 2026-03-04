@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
  */
 export type ItemCarrito = {
   /** ID único del producto. */
-  productoId?: string;
+  productoId: string;
   /** Nombre del producto al momento de añadirlo. */
   nombreActual: string;
   /** Precio unitario registrado. */

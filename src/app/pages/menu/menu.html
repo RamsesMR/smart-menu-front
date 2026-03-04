@@ -1,7 +1,25 @@
 <div class="menu-container">
   <div class="top-actions">
-    <button class="btn-logout" (click)="logout()">Logout</button>
+    @if (auth.getRole() === 'EMPLEADO' || auth.getRole() === 'EMPRESA') {
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    }
   </div>
+
+  @if (idsRecomendados.length > 0) {
+    <div class="ia-banner">
+      <p>
+        <strong>Menú personalizado listo.</strong> Estos platos encajan con tus objetivos.
+        @if (kcalObjetivoIA) {
+          Tu objetivo hoy es de <strong>{{ kcalObjetivoIA }} kcal</strong>
+        } @else {
+          Estos platos encajan con tus objetivos nutricionales.
+        }
+      </p>
+      <button type="button" class="btn-ver-todo" (click)="limpiarFiltroIA()">
+        Ver toda la carta
+      </button>
+    </div>
+  }
 
   <div class="menu">
     <header class="top">
@@ -25,7 +43,6 @@
         <button class="chip" [class.active]="catActiva === null" (click)="setCat(null)">
           Todo
         </button>
-
         @for (c of categorias; track c) {
           <button class="chip" [class.active]="catActiva === c" (click)="setCat(c)">
             {{ c }}
@@ -34,48 +51,63 @@
       </div>
     </header>
 
-    <main class="grid" role="list">
-      @for (p of productosFiltrados(); track p.id) {
-        <article class="card" (click)="openProducto(p)">
-          <div class="card-img-box">
-            @if (p.kcal && p.kcal < 400) {
-              <div class="smart-tag">Recomendado</div>
-            }
+    <main class="grid-container">
+      @if (loading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando nuestra carta...</p>
+        </div>
+      } @else {
+        <div class="grid">
+          @for (p of productosFiltrados(); track p.id) {
+            <article class="card">
+              <div class="card-img-box">
+                @if (idsRecomendados.includes(p.id)) {
+                  <div class="smart-tag">Recomendado</div>
+                }
+                <div class="img-wrapper">
+                  <img
+                    [src]="p.imagen"
+                    [alt]="p.nombre"
+                    class="product-img"
+                    onerror="this.src = 'assets/default-plate.png'"
+                  />
+                </div>
+              </div>
 
-            <div class="img-wrapper">
-              @if (p.imagen) {
-                <img [src]="p.imagen" [alt]="p.nombre" class="product-img" />
-              } @else {
-                <span class="placeholder-icon">🍽️</span>
+              <div class="meta">
+                <h2 class="name">{{ p.nombre }}</h2>
+                <p class="desc">{{ p.descripcion }}</p>
+                @if (p.kcal) {
+                  <div class="kcal-badge">🔥 {{ p.kcal }} kcal</div>
+                }
+                <div class="macros-grid">
+                  <span title="Proteinas">Proteinas {{ p.proteinas }} g</span>
+                  <span title="Grasas">Grasas {{ p.grasas }} g</span>
+                  <span title="Carbohidratos">Carbohidratos {{ p.carbohidratos }} g</span>
+                </div>
+                <div class="price">{{ p.precioConIva | number: '1.2-2' }} €</div>
+              </div>
+
+              @if (modo === 'armar') {
+                <div class="controls">
+                  <button class="qty-btn" (click)="dec(p)">−</button>
+                  <span class="count">{{ p.qty }}</span>
+                  <button class="qty-btn" (click)="inc(p)">+</button>
+                </div>
               }
-            </div>
-          </div>
-
-          <div class="meta">
-            <h2 class="name">{{ p.nombre }}</h2>
-            <p class="desc">{{ p.descripcion }}</p>
-
-            @if (p.kcal) {
-              <div class="kcal-badge">🔥 {{ p.kcal }} kcal</div>
-            }
-
-            <div class="price">{{ p.precioConIva | number: '1.2-2' }} €</div>
-          </div>
-
-          @if (modo === 'armar') {
-            <div class="controls" (click)="$event.stopPropagation()">
-              <button class="qty-btn" (click)="dec(p)">−</button>
-              <span class="count">{{ getQty(p) }}</span>
-              <button class="qty-btn" (click)="inc(p)">+</button>
+            </article>
+          } @empty {
+            <div class="empty-state">
+              <p>No se encontraron platos.</p>
+              <small>(Revisando {{ productos.length }} productos totales)</small>
             </div>
           }
-        </article>
-      } @empty {
-        <div class="empty-state">No se encontraron platos.</div>
+        </div>
       }
     </main>
 
-    @if (modo === 'armar') {
+    @if (modo === 'armar' && !loading && totalItems > 0) {
       <footer class="bottom-actions">
         <button class="confirm-btn" (click)="irAPedir()">Confirmar mi pedido</button>
       </footer>
