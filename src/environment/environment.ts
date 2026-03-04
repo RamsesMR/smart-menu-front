@@ -11,11 +11,15 @@
 
 
 //para local
-
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:9002',
+  production: true,
+  apiUrl: 'http://lakritas.com:8080/app3_back',
 };
+
+// export const environment = {
+//   production: false,
+//   apiUrl: 'http://localhost:9002',
+// };
 
 
 

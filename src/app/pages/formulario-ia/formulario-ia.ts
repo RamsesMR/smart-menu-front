@@ -45,7 +45,7 @@ export class FormularioIa {
         peso: Number(this.form.value.pesoKg),
         altura: Number(this.form.value.alturaCm),
         objetivo: this.form.value.objetivo,
-        restauranteId: '67b864a6a578a10f0891d4e4',
+        restauranteId: '696ba6825fe46fff9ddceb06',
       };
 
       console.log('Enviado a IA :', payload);
