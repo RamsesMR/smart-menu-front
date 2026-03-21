@@ -37,7 +37,7 @@ export class Admin implements OnInit {
     kcal: [0, [Validators.min(0), Validators.max(10000)]],
     tags: [''],       // texto "ENTRANTE,PRINCIPAL"
     alergenos: [''],  // texto "gluten,huevo"
-    restauranteId: [''],
+    restauranteId: '696ba6825fe46fff9ddceb06',
   });
 
   ngOnInit() {
@@ -125,7 +125,7 @@ export class Admin implements OnInit {
       kcal: 0,
       tags: '',
       alergenos: '',
-      restauranteId: '',
+      restauranteId: '696ba6825fe46fff9ddceb06',
     });
     this.modalAbierto.set(true);
   }
