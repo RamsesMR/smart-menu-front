@@ -27,6 +27,25 @@ export class Admin implements OnInit {
   editando = signal<AdminProducto | null>(null);
   modalAbierto = signal(false);
 
+  tiposPlato = ['ENTRANTE', 'PRINCIPAL', 'BEBIDA', 'POSTRE'];
+
+  alergenosDisponibles = [
+    'gluten',
+    'crustaceos',
+    'huevo',
+    'pescado',
+    'cacahuetes',
+    'soja',
+    'lacteos',
+    'frutos_secos',
+    'apio',
+    'mostaza',
+    'sesamo',
+    'sulfitos',
+    'moluscos',
+    'altramuces',
+  ];
+
   form = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
     descripcion: [''],
@@ -35,9 +54,9 @@ export class Admin implements OnInit {
     imagen: [''],
     disponible: [true, [Validators.required]],
     kcal: [0, [Validators.min(0), Validators.max(10000)]],
-    tags: [''],       // texto "ENTRANTE,PRINCIPAL"
-    alergenos: [''],  // texto "gluten,huevo"
-    restauranteId: '696ba6825fe46fff9ddceb06',
+    tags: [[] as string[]],
+    alergenos: [[] as string[]],
+    restauranteId: ['696ba6825fe46fff9ddceb06'],
   });
 
   ngOnInit() {
@@ -59,17 +78,6 @@ export class Admin implements OnInit {
       p?._id ||
       '';
     return typeof raw === 'string' ? raw : String(raw);
-  }
-
-  private parseLista(texto: string): string[] {
-    return (texto || '')
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean);
-  }
-
-  private joinLista(arr?: string[]): string {
-    return Array.isArray(arr) ? arr.join(', ') : '';
   }
 
   cargar() {
@@ -123,8 +131,8 @@ export class Admin implements OnInit {
       imagen: '',
       disponible: true,
       kcal: 0,
-      tags: '',
-      alergenos: '',
+      tags: [],
+      alergenos: [],
       restauranteId: '696ba6825fe46fff9ddceb06',
     });
     this.modalAbierto.set(true);
@@ -140,9 +148,9 @@ export class Admin implements OnInit {
       imagen: p.imagen || '',
       disponible: !!p.disponible,
       kcal: Number(p.kcal ?? 0),
-      tags: this.joinLista(p.tags),
-      alergenos: this.joinLista(p.alergenos),
-      restauranteId: p.restauranteId || '',
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      alergenos: Array.isArray(p.alergenos) ? p.alergenos : [],
+      restauranteId: p.restauranteId || '696ba6825fe46fff9ddceb06',
     });
     this.modalAbierto.set(true);
   }
@@ -150,6 +158,44 @@ export class Admin implements OnInit {
   cerrarModal() {
     this.modalAbierto.set(false);
     this.form.markAsPristine();
+  }
+
+  isTagSelected(tag: string): boolean {
+    const tags = this.form.get('tags')?.value || [];
+    return Array.isArray(tags) && tags.includes(tag);
+  }
+
+  toggleTag(tag: string, checked: boolean) {
+    const current = this.form.get('tags')?.value || [];
+    const tags = Array.isArray(current) ? [...current] : [];
+
+    if (checked) {
+      if (!tags.includes(tag)) tags.push(tag);
+    } else {
+      const index = tags.indexOf(tag);
+      if (index >= 0) tags.splice(index, 1);
+    }
+
+    this.form.get('tags')?.setValue(tags);
+  }
+
+  isAlergenoSelected(alergeno: string): boolean {
+    const alergenos = this.form.get('alergenos')?.value || [];
+    return Array.isArray(alergenos) && alergenos.includes(alergeno);
+  }
+
+  toggleAlergeno(alergeno: string, checked: boolean) {
+    const current = this.form.get('alergenos')?.value || [];
+    const alergenos = Array.isArray(current) ? [...current] : [];
+
+    if (checked) {
+      if (!alergenos.includes(alergeno)) alergenos.push(alergeno);
+    } else {
+      const index = alergenos.indexOf(alergeno);
+      if (index >= 0) alergenos.splice(index, 1);
+    }
+
+    this.form.get('alergenos')?.setValue(alergenos);
   }
 
   guardar() {
@@ -168,8 +214,8 @@ export class Admin implements OnInit {
       imagen: String(v.imagen || ''),
       disponible: !!v.disponible,
       kcal: Number(v.kcal ?? 0),
-      tags: this.parseLista(String(v.tags || '')).map((x) => x.toUpperCase()),
-      alergenos: this.parseLista(String(v.alergenos || '')).map((x) => x.toLowerCase()),
+      tags: Array.isArray(v.tags) ? v.tags.map((x) => String(x).toUpperCase()) : [],
+      alergenos: Array.isArray(v.alergenos) ? v.alergenos.map((x) => String(x).toLowerCase()) : [],
       restauranteId: String(v.restauranteId || '').trim() || undefined,
     };
 

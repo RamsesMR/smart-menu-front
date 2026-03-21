@@ -64,6 +64,7 @@
               <div class="mini">
                 @if (p.kcal) { <span class="pill">🔥 {{ p.kcal }} kcal</span> }
                 @if (p.tags?.length) { <span class="pill">{{ p.tags?.join(' · ') }}</span> }
+                @if (p.alergenos?.length) { <span class="pill">{{ p.alergenos?.join(' · ') }}</span> }
               </div>
             </div>
 
@@ -133,17 +134,39 @@
 
         <div class="row">
           <div class="field">
-            <label>Tags (coma)</label>
-            <input class="input" placeholder="ENTRANTE, PRINCIPAL, BEBIDA..." formControlName="tags" />
+            <label>Tipo de plato</label>
+            <div class="checks-box">
+              @for (tag of tiposPlato; track tag) {
+                <label class="check-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isTagSelected(tag)"
+                    (change)="toggleTag(tag, $any($event.target).checked)"
+                  />
+                  <span>{{ tag }}</span>
+                </label>
+              }
+            </div>
           </div>
+
           <div class="field">
-            <label>Alérgenos (coma)</label>
-            <input class="input" placeholder="gluten, huevo..." formControlName="alergenos" />
+            <label>Alérgenos</label>
+            <div class="checks-box">
+              @for (alergeno of alergenosDisponibles; track alergeno) {
+                <label class="check-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isAlergenoSelected(alergeno)"
+                    (change)="toggleAlergeno(alergeno, $any($event.target).checked)"
+                  />
+                  <span>{{ alergeno }}</span>
+                </label>
+              }
+            </div>
           </div>
         </div>
 
-          <input type="hidden" value="696ba6825fe46fff9ddceb06" formControlName="restauranteId" />
-        
+        <input type="hidden" formControlName="restauranteId" />
 
         <footer class="modal-footer">
           <button class="btn" type="button" (click)="cerrarModal()">Cancelar</button>
