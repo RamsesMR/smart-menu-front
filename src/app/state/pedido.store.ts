@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Define la estructura de un producto dentro del carrito,
- * incluyendo su estado de envío a cocina.
+ * Define la estructura de un producto dentro del carrito de compras.
+ * * @description Incluye metadatos necesarios para la visualización en el frontend
+ * y para el procesamiento de la comanda en la cocina.
  */
 export type ItemCarrito = {
   /** ID único del producto. */
@@ -22,8 +23,10 @@ export type ItemCarrito = {
 };
 
 /**
- * Servicio de persistencia global.
- * Gestiona el carrito actual, la identificación de la mesa y el histórico de comandas.
+ * Servicio de gestión de estado y persistencia local del pedido.
+ * * @description Centraliza todas las operaciones de lectura y escritura en el `localStorage`
+ * del navegador. Gestiona el ciclo de vida de una comanda: desde la asignación de mesa
+ * hasta el histórico de productos consumidos.
  */
 @Injectable({ providedIn: 'root' })
 export class PedidoStore {
@@ -34,32 +37,33 @@ export class PedidoStore {
   private estadoPedido = localStorage.getItem('estado_actual') || 'NUEVO';
 
   /**
-   * Registra el identificador de la mesa actual.
-   * @param mesa Número o nombre de la mesa.
+   * Registra el identificador de la mesa en el almacenamiento local.
+   * @param mesa Número o nombre descriptivo de la mesa.
    */
   guardarMesa(mesa: string) {
     localStorage.setItem(this.claveMesa, mesa || '');
   }
 
   /**
-   * Recupera la mesa guardada.
-   * @returns El identificador de la mesa.
+   * Recupera la mesa vinculada a la sesión actual.
+   * @returns El identificador de la mesa o un string vacío si no existe.
    */
   obtenerMesa(): string {
     return localStorage.getItem(this.claveMesa) || '';
   }
 
   /**
-   * Guarda el ID único de la sesión del pedido.
-   * @param id Identificador del pedido.
+   * Persiste el identificador único de la comanda.
+   * @param id Identificador generado por el sistema o el servidor.
    */
   guardarIdPedido(id: string) {
     localStorage.setItem(this.claveId, id);
   }
 
   /**
-   * Recupera el ID del pedido o genera uno nuevo si no existe.
-   * @returns Identificador único.
+   * Recupera el ID del pedido actual.
+   * Si no existe uno previo, genera automáticamente un ID temporal único.
+   * @returns Identificador alfanumérico del pedido.
    */
   obtenerIdPedido(): string {
     let id = localStorage.getItem(this.claveId);
@@ -71,8 +75,8 @@ export class PedidoStore {
   }
 
   /**
-   * Actualiza el estado global del pedido.
-   * @param nuevoEstado Estado como NUEVO, EN_PREPARACION, etc.
+   * Actualiza y persiste el estado del flujo de trabajo del pedido.
+   * @param nuevoEstado Valores esperados: 'NUEVO', 'CONFIRMADO', 'EN_PREPARACION', 'LISTO'.
    */
   guardarEstado(nuevoEstado: string) {
     this.estadoPedido = nuevoEstado;
@@ -80,16 +84,16 @@ export class PedidoStore {
   }
 
   /**
-   * Obtiene el estado actual registrado.
-   * @returns Estado técnico del pedido.
+   * Obtiene el estado técnico en el que se encuentra la comanda actual.
+   * @returns El estado almacenado en el navegador.
    */
   obtenerEstado() {
     return localStorage.getItem('estado_actual') || this.estadoPedido;
   }
 
   /**
-   * Recupera todas las rondas enviadas históricamente por la mesa.
-   * @returns Lista de comandas almacenadas.
+   * Recupera el historial de todas las rondas de productos enviadas con éxito.
+   * @returns Array de objetos que representan las comandas confirmadas.
    */
   obtenerHistorial(): any[] {
     try {
@@ -100,8 +104,8 @@ export class PedidoStore {
   }
 
   /**
-   * Añade una nueva comanda confirmada al historial local.
-   * @param comanda Objeto con los datos de la ronda enviada.
+   * Agrega una nueva ronda confirmada al histórico de la sesión.
+   * @param comanda Objeto con el detalle de la ronda recién enviada a cocina.
    */
   agregarAlHistorial(comanda: any) {
     const historial = this.obtenerHistorial();
@@ -110,8 +114,8 @@ export class PedidoStore {
   }
 
   /**
-   * Obtiene los productos que están actualmente en el carrito de selección.
-   * @returns Lista de items.
+   * Recupera la lista de productos que el usuario tiene actualmente en su bandeja de selección.
+   * @returns Un array de {@link ItemCarrito}.
    */
   obtenerItems(): ItemCarrito[] {
     try {
@@ -122,15 +126,16 @@ export class PedidoStore {
   }
 
   /**
-   * Persiste la lista de productos del carrito.
-   * @param items Lista de productos.
+   * Guarda la lista actual de productos en el carrito.
+   * @param items Colección de productos a persistir.
    */
   guardarItems(items: ItemCarrito[]) {
     localStorage.setItem(this.clave, JSON.stringify(items || []));
   }
 
   /**
-   * Elimina toda la información del pedido actual, la mesa y el historial.
+   * Realiza una limpieza total de la sesión.
+   * Borra carrito, mesa, historial y estados para permitir un nuevo ciclo de pedido.
    */
   vaciar() {
     localStorage.removeItem(this.clave);
@@ -142,16 +147,16 @@ export class PedidoStore {
   }
 
   /**
-   * Cuenta el total de productos en el carrito.
-   * @returns Cantidad de unidades.
+   * Realiza un conteo acumulado de todas las unidades de productos en el carrito.
+   * @returns Cantidad total de artículos seleccionados.
    */
   totalItems(): number {
     return this.obtenerItems().reduce((a, i) => a + (i.cantidad || 0), 0);
   }
 
   /**
-   * Calcula el coste total del carrito actual.
-   * @returns Importe total.
+   * Calcula el importe total económico del carrito actual basándose en los precios capturados.
+   * @returns Suma total en euros (o moneda local).
    */
   totalEuros(): number {
     return this.obtenerItems().reduce((s, i) => s + (i.cantidad || 0) * (i.precioActual || 0), 0);

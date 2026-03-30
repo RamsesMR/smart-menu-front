@@ -1,4 +1,8 @@
-/** Representación técnica de un plato o bebida */
+/**
+ * Representación técnica de un producto (plato o bebida) dentro del catálogo.
+ * * Esta interfaz mapea los datos provenientes del Backend (MongoDB) y se utiliza
+ * en toda la lógica de visualización del menú.
+ */
 export interface Producto {
   id?: any;
   _id?: any;
@@ -14,6 +18,9 @@ export interface Producto {
   kcal?: number;
 }
 
+/**
+ * Estructura de la respuesta estándar del servidor para las peticiones de catálogo.
+ */
 export interface MenuResponse {
   productos: Producto[];
 }

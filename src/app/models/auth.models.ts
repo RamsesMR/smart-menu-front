@@ -1,7 +1,13 @@
-/** Roles de usuario permitidos en el sistema */
+/**
+ * Define los perfiles de acceso permitidos en la plataforma.
+ * * - `CLIENTE`: Usuario que realiza pedidos desde la mesa.
+ * - `EMPRESA`: Personal del restaurante (Admin, Barra, Cocina).
+ */
 export type Role = 'CLIENTE' | 'EMPRESA';
 
-/** Representación del usuario autenticado */
+/**
+ * Interfaz que representa la información del usuario en la sesión activa.
+ */
 export interface User {
   nombre: string;
   email: string;
@@ -9,7 +15,10 @@ export interface User {
   mesaId?: string;
 }
 
-/** Respuesta exitosa del servidor tras el login */
+/**
+ * Estructura de la respuesta enviada por el backend tras una autenticación exitosa.
+ * Contiene el token JWT necesario para el {@link AuthInterceptor}.
+ */
 export interface AuthResponse {
   token: string;
   user: User;

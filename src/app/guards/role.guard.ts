@@ -3,9 +3,15 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../api/auth-service';
 
 /**
- * Guardián de acceso baso en Roles.
- * Verifica autenticación (Si está logueado)
- * Verifica autorización (Si tiene el rol adecuado)
+ * Guardián de seguridad basado en roles (RBAC - Role Based Access Control).
+ * * @description Este guardián protege las rutas de la aplicación realizando una doble validación:
+ * 1. **Autenticación**: Comprueba si el usuario tiene una sesión activa mediante {@link AuthService.isLoggedIn}.
+ * 2. **Autorización**: Verifica si el rol del usuario coincide con los permisos definidos en la configuración de la ruta.
+ * * @param route Instantánea de la ruta que se intenta activar, contiene la data de roles permitidos.
+ * @returns `true` si el acceso es concedido, `false` si el usuario es redirigido por falta de permisos.
+ * * @example
+ * Uso en app.routes.ts:
+ * { path: 'admin', component: AdminComponent, canActivate: [roleGuard], data: { roles: ['EMPRESA'] } }
  */
 export const roleGuard: CanActivateFn = (route) => {
   const auth = inject(AuthService);

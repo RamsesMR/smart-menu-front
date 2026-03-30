@@ -7,6 +7,10 @@ import { MenuService } from '../../api/menu-service';
 import { AuthService } from '../../api/auth-service';
 import { PedidoStore, ItemCarrito } from '../../state/pedido.store';
 
+/**
+ * Modelo de vista (ViewModel) para representar un producto en la interfaz del menú.
+ * * @description Combina datos técnicos del backend con estados locales de la UI (como la cantidad).
+ */
 type ProductoVM = {
   id: string;
   nombre: string;
@@ -21,6 +25,12 @@ type ProductoVM = {
   carbohidratos?: number;
 };
 
+/**
+ * Componente principal de la carta/menú del restaurante.
+ * * @description Gestiona la visualización de productos, el filtrado por categorías,
+ * la búsqueda de texto y la integración con las recomendaciones de la IA.
+ * Permite dos modos: 'ver' (consulta) y 'armar' (selección de pedido).
+ */
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -47,14 +57,19 @@ export class Menu implements OnInit {
     private pedidoStore: PedidoStore,
   ) {}
 
+  /** Obtiene la cantidad total de unidades en el carrito desde el Store */
   get totalItems() {
     return this.pedidoStore.totalItems();
   }
 
+  /** Obtiene el importe acumulado en el carrito desde el Store */
   get totalEuros() {
     return this.pedidoStore.totalEuros();
   }
 
+  /**
+   * Inicializa el componente sincronizando los parámetros de la URL (Mesa, Modo e IA).
+   */
   ngOnInit() {
     this.route.queryParamMap.subscribe((q) => {
       const m = q.get('modo');
@@ -79,6 +94,11 @@ export class Menu implements OnInit {
     this.cargarMenuYSincronizar();
   }
 
+  /**
+   * Mapea los tags de MongoDB a las categorías amigables de la interfaz.
+   * @param tags Array de etiquetas provenientes del backend.
+   * @returns Nombre de la categoría normalizada.
+   */
   private categoriaDesdeTags(tags: any): string {
     const t = (Array.isArray(tags) ? tags : []).map((x: any) => String(x).toUpperCase());
 
@@ -89,6 +109,10 @@ export class Menu implements OnInit {
     return 'Otros';
   }
 
+  /**
+   * Recupera el catálogo del servidor y sincroniza las cantidades con el carrito local.
+   * * @description Realiza un mapeo exhaustivo de los diferentes formatos de ID de MongoDB.
+   */
   private cargarMenuYSincronizar() {
     this.menuService.getMenu().subscribe({
       next: (resp: any) => {
@@ -142,11 +166,14 @@ export class Menu implements OnInit {
     });
   }
 
+  /**
+   * Persiste los cambios de cantidades en el {@link PedidoStore}.
+   * Mantiene los productos ya enviados a cocina intactos.
+   */
   private actualizarStore() {
     const itemsExistentes = this.pedidoStore.obtenerItems();
     const enviados = itemsExistentes.filter((i) => i.enviado);
 
-    // IMPORTANTE: Solo guardamos lo que realmente tiene cantidad > 0
     const nuevos = this.productos
       .filter((p) => p.qty > 0)
       .map((p) => ({
@@ -175,29 +202,28 @@ export class Menu implements OnInit {
     }
   }
 
-  // --- MÉTODOS DE APOYO ---
-
+  /**
+   * Filtra la lista de productos basada en la búsqueda, categoría y recomendaciones de IA.
+   * @returns Array de productos que cumplen todos los criterios.
+   */
   productosFiltrados(): ProductoVM[] {
     const term = this.search.trim().toLowerCase();
 
     return this.productos.filter((p) => {
-      // 1. Lógica de IA: Si hay recomendados, el producto debe estar en la lista
       let cumpleIA = true;
       if (this.idsRecomendados.length > 0) {
-        // Buscamos coincidencia por ID O por el nombre normalizado (como plan B)
         const nombreNormalizado = p.nombre.trim().toLowerCase().replace(/\s+/g, '');
         cumpleIA =
           this.idsRecomendados.includes(p.id) || this.idsRecomendados.includes(nombreNormalizado);
       }
 
-      // 2. Filtros normales (Categoría y Buscador)
       const okCat = !this.catActiva || p.categoria?.toLowerCase() === this.catActiva.toLowerCase();
       const okSearch = !term || (p.nombre + ' ' + p.descripcion).toLowerCase().includes(term);
 
       return cumpleIA && okCat && okSearch;
     });
   }
-
+  /** Cambia la categoría de visualización activa. */
   setCat(c: string | null) {
     this.catActiva = c;
   }
@@ -206,20 +232,24 @@ export class Menu implements OnInit {
     return p.qty || 0;
   }
 
+  /** Navega a la vista de confirmación del pedido. */
   irAPedir() {
     this.router.navigate(['/pedir']);
   }
 
+  /** Resetea los filtros impuestos por la IA para volver a ver el menú completo. */
   limpiarFiltroIA() {
     this.idsRecomendados = [];
     this.router.navigate([], { queryParams: { recomendados: null }, queryParamsHandling: 'merge' });
   }
 
+  /** Cierra la sesión y redirige al login. */
   logout() {
     this.auth.clear();
     this.router.navigateByUrl('/login');
   }
 
+  /** Función de optimización para el renderizado de listas en Angular. */
   trackById(index: number, item: ProductoVM) {
     return item.id;
   }

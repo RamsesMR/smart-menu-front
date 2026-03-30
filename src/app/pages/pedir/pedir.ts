@@ -7,8 +7,11 @@ import { PedidoService, NuevoPedido } from '../../api/pedido-service';
 import { interval, Subscription } from 'rxjs';
 
 /**
- * Componente que gestiona la revisión del carrito y el proceso de envío a cocina.
- * Maneja el ciclo de vida del pedido, desde la edición de cantidades hasta el seguimiento del estado.
+ * Componente de gestión de confirmación y seguimiento de pedidos.
+ * * @description Actúa como la "Caja" del restaurante. Permite revisar el carrito,
+ * añadir notas por producto, enviar rondas a cocina y visualizar el progreso
+ * del estado del pedido (Recibido -> Preparando -> Listo -> Entregado).
+ * * Implementa un sistema de vigilancia periódica para actualizar el estado visual.
  */
 @Component({
   selector: 'app-pedir',
@@ -46,7 +49,9 @@ export class Pedir implements OnInit, OnDestroy {
   ) {}
 
   /**
-   * Carga los datos iniciales y recupera el estado de seguimiento si existe un pedido previo.
+   * Inicializa la vista cargando el carrito y verificando si hay pedidos previos en curso.
+   * * @description Si detecta un estado guardado en el navegador, activa automáticamente
+   * la vista de seguimiento.
    */
   ngOnInit(): void {
     this.items = this.pedidoStore.obtenerItems();
@@ -70,18 +75,18 @@ export class Pedir implements OnInit, OnDestroy {
     }
   }
 
-  /** Actualiza el total económico basándose en los productos actuales. */
-  private recalcularTotal() {
+  /** Calcula el total del pedido sumando (cantidad * precio) de cada item */ private recalcularTotal() {
     this.totalEuros = this.items.reduce((s, i) => s + (i.cantidad || 0) * (i.precioActual || 0), 0);
   }
 
-  /** Navega al menú para añadir más productos. */
+  /** Navega de vuelta al catálogo en modo edición */
   seguirPidiendo() {
     this.router.navigate(['/menu'], { queryParams: { modo: 'armar' } });
   }
-
   /**
-   * Inicia un temporizador que consulta cambios de estado en el almacenamiento local.
+   * Crea un flujo de consulta (polling) que revisa cambios de estado en el sistema.
+   * * @internal Este método actualiza la UI automáticamente cuando el backend o el sistema
+   * de persistencia notifican un cambio de fase en el pedido.
    */
   iniciarVigilanciaEstado() {
     this.vigilanciaSub = interval(2000).subscribe(() => {
@@ -100,15 +105,15 @@ export class Pedir implements OnInit, OnDestroy {
     });
   }
 
-  /** Limpia las suscripciones al destruir el componente. */
-  ngOnDestroy() {
+  /** Se asegura de cancelar las suscripciones activas para evitar fugas de memoria */ ngOnDestroy() {
     this.vigilanciaSub?.unsubscribe();
   }
 
   /**
-   * Modifica la cantidad de un producto. Si llega a cero, lo elimina.
-   * @param item Producto a modificar.
-   * @param delta Cantidad a sumar o restar.
+   * Incrementa o decrementa la cantidad de un item.
+   * Si la cantidad llega a 0, el producto se elimina del carrito.
+   * * @param item El producto a modificar.
+   * @param delta Valor positivo o negativo a sumar a la cantidad actual.
    */
   cambiarCantidad(item: ItemCarrito, delta: number) {
     if (item.enviado) return;
@@ -124,9 +129,9 @@ export class Pedir implements OnInit, OnDestroy {
   }
 
   /**
-   * Asocia una observación específica a un producto del carrito.
-   * @param item Producto seleccionado.
-   * @param nota Texto de la observación.
+   * Actualiza la nota personalizada de una línea de pedido específica.
+   * @param item El item del carrito a modificar.
+   * @param nota El texto con las instrucciones para cocina.
    */
   cambiarNota(item: ItemCarrito, nota: string) {
     if (item.enviado) return;
@@ -134,22 +139,32 @@ export class Pedir implements OnInit, OnDestroy {
     this.pedidoStore.guardarItems(this.items);
   }
 
-  /** Elimina todos los productos que aún no han sido enviados a cocina. */
-  vaciarCarrito() {
+  /** Elimina únicamente los productos que todavía no han sido enviados al servidor */ vaciarCarrito() {
     this.items = this.items.filter((i) => i.enviado === true);
     this.pedidoStore.guardarItems(this.items);
     this.recalcularTotal();
   }
 
-  /** Regresa a la vista del catálogo. */
+  /** Regresa a la vista del menú. */
   volverAlMenu() {
     this.router.navigate(['/menu'], { queryParams: { modo: 'armar' } });
   }
+
+  /**
+   * Valida si un string cumple con el formato hexadecimal de 24 caracteres de MongoDB
+   * @param val Valor a evaluar
+   */
   private esObjectId(val: any): boolean {
     return typeof val === 'string' && /^[a-fA-F0-9]{24}$/.test(val);
   }
+
   /**
-   * Empaqueta los productos nuevos y los envía como una ronda independiente a cocina.
+   * Procesa el envío de los nuevos productos del carrito al backend.
+   * * @description Este método:
+   * 1. Filtra los items pendientes.
+   * 2. Construye el objeto {@link NuevoPedido}.
+   * 3. Intenta el envío mediante {@link PedidoService}.
+   * 4. En caso de error, activa un "modo local" para asegurar que la experiencia de usuario no se corte.
    */
   confirmarPedido() {
     this.mensajeError = '';
@@ -206,7 +221,10 @@ export class Pedir implements OnInit, OnDestroy {
     });
   }
 
-  /** Devuelve el porcentaje numérico de progreso según el estado actual. */
+  /**
+   * Calcula el valor numérico para la barra de progreso de la UI.
+   * @returns Porcentaje de 0 a 100.
+   */
   getProgresoPorcentaje(): number {
     const mapa: Record<string, number> = {
       RECIBIDO: 20,
@@ -218,7 +236,10 @@ export class Pedir implements OnInit, OnDestroy {
     return mapa[this.estadoActual] || 0;
   }
 
-  /** Traduce el estado técnico a un mensaje amigable para el cliente. */
+  /**
+   * Transforma el estado técnico en una etiqueta legible para el cliente final.
+   * @param estado El código de estado (ej: 'PREPARANDO').
+   */
   textoEstadoBonito(estado: string): string {
     const nombres: Record<string, string> = {
       RECIBIDO: 'Recibido en cocina',
@@ -237,12 +258,12 @@ export class Pedir implements OnInit, OnDestroy {
     this.estadoActual = 'RECIBIDO';
   }
 
-  /** Filtra los productos que ya están confirmados por cocina. */
+  /** @returns Listado de productos que ya han sido procesados por el servidor */
   itemsEnviados() {
     return this.items.filter((i) => i.enviado === true);
   }
 
-  /** Filtra los productos pendientes de envío. */
+  /** @returns Listado de productos pendientes de confirmación */
   itemsNuevos() {
     return this.items.filter((i) => !i.enviado);
   }
