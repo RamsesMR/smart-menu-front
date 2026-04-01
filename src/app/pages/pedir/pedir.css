@@ -244,3 +244,18 @@
   font-style: italic;
   margin-top: 5px;
 }
+
+.btn-cantidad:focus-visible,
+.input-app:focus-visible,
+.btn-app:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.input-app {
+  min-height: 44px;
+}
+
+.feedback-overlay {
+  outline: none;
+}

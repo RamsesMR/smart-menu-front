@@ -1,12 +1,12 @@
 <div class="menu-container">
   <div class="top-actions">
     @if (auth.getRole() === 'EMPLEADO' || auth.getRole() === 'EMPRESA') {
-      <button class="btn-logout" (click)="logout()">Logout</button>
+      <button class="btn-logout" (click)="logout()" aria-label="Cerrar sesión">Logout</button>
     }
   </div>
 
   @if (idsRecomendados.length > 0) {
-    <div class="ia-banner">
+    <div class="ia-banner" role="status">
       <p>
         <strong>Menú personalizado listo.</strong> Estos platos encajan con tus objetivos.
         @if (kcalObjetivoIA) {
@@ -27,24 +27,39 @@
         <h1 class="title">Menú</h1>
 
         @if (modo === 'armar') {
-          <div class="order-mini">
+          <div class="order-mini" aria-live="polite">
             <span>{{ totalItems }} items</span>
-            <span class="dot">•</span>
+            <span class="dot" aria-hidden="true">•</span>
             <span>{{ totalEuros | number: '1.2-2' }} €</span>
           </div>
         }
       </div>
 
       <div class="search-row">
-        <input class="search-input" placeholder="Buscar..." [(ngModel)]="search" />
+        <input
+          class="search-input"
+          placeholder="Buscar..."
+          [(ngModel)]="search"
+          aria-label="Buscar en el menú"
+        />
       </div>
 
-      <div class="chips-container">
-        <button class="chip" [class.active]="catActiva === null" (click)="setCat(null)">
+      <div class="chips-container" aria-label="Filtrar por categoría">
+        <button
+          class="chip"
+          [class.active]="catActiva === null"
+          (click)="setCat(null)"
+          [attr.aria-pressed]="catActiva === null"
+        >
           Todo
         </button>
         @for (c of categorias; track c) {
-          <button class="chip" [class.active]="catActiva === c" (click)="setCat(c)">
+          <button
+            class="chip"
+            [class.active]="catActiva === c"
+            (click)="setCat(c)"
+            [attr.aria-pressed]="catActiva === c"
+          >
             {{ c }}
           </button>
         }
@@ -53,8 +68,8 @@
 
     <main class="grid-container">
       @if (loading) {
-        <div class="loading-state">
-          <div class="spinner"></div>
+        <div class="loading-state" role="alert" aria-busy="true">
+          <div class="spinner" aria-hidden="true"></div>
           <p>Cargando nuestra carta...</p>
         </div>
       } @else {
@@ -86,14 +101,30 @@
                   <span title="Grasas">Grasas {{ p.grasas }} g</span>
                   <span title="Carbohidratos">Carbohidratos {{ p.carbohidratos }} g</span>
                 </div>
-                <div class="price">{{ p.precioConIva | number: '1.2-2' }} €</div>
+                <div class="price" [attr.aria-label]="'Precio: ' + p.precioConIva + ' euros'">
+                  {{ p.precioConIva | number: '1.2-2' }} €
+                </div>
               </div>
 
               @if (modo === 'armar') {
                 <div class="controls">
-                  <button class="qty-btn" (click)="dec(p)">−</button>
-                  <span class="count">{{ p.qty }}</span>
-                  <button class="qty-btn" (click)="inc(p)">+</button>
+                  <button
+                    class="qty-btn"
+                    (click)="dec(p)"
+                    [attr.aria-label]="'Quitar uno de ' + p.nombre"
+                  >
+                    −
+                  </button>
+                  <span class="count" aria-live="polite" [attr.aria-label]="p.qty + ' unidades'">{{
+                    p.qty
+                  }}</span>
+                  <button
+                    class="qty-btn"
+                    (click)="inc(p)"
+                    [attr.aria-label]="'Añadir uno de ' + p.nombre"
+                  >
+                    +
+                  </button>
                 </div>
               }
             </article>

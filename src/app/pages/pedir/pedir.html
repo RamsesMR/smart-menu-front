@@ -3,7 +3,11 @@
     <div class="top-row">
       <div class="title">Confirmar Pedido</div>
       @if (items.length > 0 || pedidoConfirmado) {
-        <div class="badge-app" style="background: var(--surface-2); color: var(--accent)">
+        <div
+          class="badge-app"
+          style="background: var(--surface-2); color: var(--accent)"
+          [attr.aria-label]="'Mesa asignada: ' + mesa"
+        >
           📍 {{ mesa }}
         </div>
       }
@@ -12,12 +16,17 @@
       <div
         class="status-tracker card-app"
         style="margin-top: 15px; border: 1px solid var(--accent)"
+        role="region"
+        aria-label="Seguimiento del estado de tu pedido"
       >
         <div
           class="status-header"
           style="display: flex; justify-content: space-between; margin-bottom: 8px"
         >
-          <span style="font-size: 0.85rem; font-weight: 700; color: var(--accent)">
+          <span
+            style="font-size: 0.85rem; font-weight: 700; color: var(--accent)"
+            aria-live="polite"
+          >
             ESTADO: {{ textoEstadoBonito(estadoActual) }}
           </span>
           <span style="font-size: 0.85rem; color: var(--muted)"
@@ -26,6 +35,11 @@
         </div>
         <div
           class="progress-bar-bg"
+          role="progressbar"
+          [attr.aria-valuenow]="getProgresoPorcentaje()"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-label]="'Progreso del pedido: ' + getProgresoPorcentaje() + '%'"
           style="height: 6px; background: var(--surface-2); border-radius: 10px; overflow: hidden"
         >
           <div
@@ -42,9 +56,15 @@
     @if (tieneItemsEnviados()) {
       <div class="separador-comanda" style="color: #2ecc71">EN COCINA (Confirmado)</div>
       @for (item of itemsEnviados(); track identificadorItem($index, item)) {
-        <div class="linea card-app enviado" style="opacity: 0.7; border-left: 4px solid #2ecc71">
+        <div
+          class="linea card-app enviado"
+          style="opacity: 0.7; border-left: 4px solid #2ecc71"
+          [attr.aria-label]="item.nombreActual + ' confirmado en cocina'"
+        >
           <div class="linea-info-principal">
-            <div class="nombre">{{ item.nombreActual }} (x{{ item.cantidad }})</div>
+            <div class="nombre" aria-hidden="true">
+              {{ item.nombreActual }} (x{{ item.cantidad }})
+            </div>
             <div class="subtotal">{{ item.cantidad * item.precioActual | number: '1.2-2' }}€</div>
           </div>
           @if (item.nota) {
@@ -68,11 +88,21 @@
           </div>
 
           <div class="linea-controles">
-            <button class="btn-cantidad" (click)="cambiarCantidad(item, -1)" [disabled]="enviando">
+            <button
+              class="btn-cantidad"
+              (click)="cambiarCantidad(item, -1)"
+              [disabled]="enviando"
+              [attr.aria-label]="'Quitar una unidad de ' + item.nombreActual"
+            >
               −
             </button>
-            <span class="cantidad">{{ item.cantidad }}</span>
-            <button class="btn-cantidad" (click)="cambiarCantidad(item, 1)" [disabled]="enviando">
+            <span class="cantidad" aria-live="polite">{{ item.cantidad }}</span>
+            <button
+              class="btn-cantidad"
+              (click)="cambiarCantidad(item, 1)"
+              [disabled]="enviando"
+              [attr.aria-label]="'Añadir una unidad de ' + item.nombreActual"
+            >
               +
             </button>
           </div>
@@ -83,6 +113,7 @@
             (ngModelChange)="cambiarNota(item, $event)"
             [disabled]="enviando"
             placeholder="Nota para cocina..."
+            [attr.aria-label]="'Instrucciones especiales para ' + item.nombreActual"
           ></textarea>
         </div>
       }
@@ -90,8 +121,8 @@
   </main>
 
   @if (items.length > 0) {
-    <footer class="pie card-app" style="margin-top: auto">
-      <div class="totales">
+    <footer class="pie card-app" role="contentinfo" style="margin-top: auto">
+      <div class="totales" aria-live="polite">
         <span style="color: var(--muted)">Total Pedido:</span>
         <span class="total-euros" style="color: var(--accent)"
           >{{ totalEuros | number: '1.2-2' }} €</span
@@ -99,12 +130,19 @@
       </div>
 
       <div class="acciones">
-        <button class="btn-app danger" (click)="vaciarCarrito()">Vaciar</button>
+        <button
+          class="btn-app danger"
+          (click)="vaciarCarrito()"
+          aria-label="Vaciar todos los productos nuevos"
+        >
+          Vaciar
+        </button>
         <button class="btn-app secondary" (click)="volverAlMenu()">Añadir más</button>
         <button
           class="btn-app primary"
           [disabled]="enviando || !tieneItemsNuevos()"
           (click)="confirmarPedido()"
+          [attr.aria-busy]="enviando"
         >
           {{ enviando ? 'Enviando...' : 'Confirmar Nueva Ronda' }}
         </button>
@@ -118,7 +156,7 @@
   }
 </div>
 @if (mensajeOk) {
-  <div class="feedback-overlay success">
+  <div class="feedback-overlay success" role="alert">
     <div class="feedback-content">
       <h3>{{ mensajeOk }}</h3>
       <p>Estamos preparando todo...</p>
@@ -127,8 +165,8 @@
 }
 
 @if (mensajeError) {
-  <div class="alert-error">
+  <div class="alert-error" role="alert">
     <span>{{ mensajeError }}</span>
-    <button (click)="mensajeError = ''">✕</button>
+    <button (click)="mensajeError = ''" aria-label="Cerrar error">✕</button>
   </div>
 }

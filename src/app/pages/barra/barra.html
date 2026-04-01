@@ -2,18 +2,18 @@
   <header class="barra-header">
     <h1 class="titulo">Barra / Cocina</h1>
     @if (cargando) {
-      <small class="status-sync" role="status">Sincronizando...</small>
+      <small class="status-sync" role="status" aria-live="polite">Sincronizando...</small>
     }
   </header>
 
   <main class="barra-columnas">
     <section class="kanban-col" aria-labelledby="header-recibidos">
       <h2 id="header-recibidos" class="col-header">Recibidos</h2>
-      <div class="lista-pedidos">
+      <div class="lista-pedidos" aria-live="assertive">
         @for (mesa of getMesasEnEstado('RECIBIDO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            @for (p of getPedidosDeMesaEnEstado(mesa, 'RECIBIDO'); track (p.id || $index)) {
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'RECIBIDO'); track p.id || $index) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -25,12 +25,12 @@
 
     <section class="kanban-col" aria-labelledby="header-preparando">
       <h2 id="header-preparando" class="col-header">Preparando</h2>
-      <div class="lista-pedidos">
+      <div class="lista-pedidos" aria-live="polite">
         @for (mesa of getMesasEnEstado('PREPARANDO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-           
-              @for (p of getPedidosDeMesaEnEstado(mesa, 'PREPARANDO'); track (p.id || $index)) {
+
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'PREPARANDO'); track p.id || $index) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -46,8 +46,8 @@
         @for (mesa of getMesasEnEstado('LISTO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-         
-              @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track (p.id || $index)) {
+
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'LISTO'); track p.id || $index) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -57,15 +57,14 @@
       </div>
     </section>
 
-
     <section class="kanban-col" aria-labelledby="header-entregados">
       <h2 id="header-entregados" class="col-header">Entregados</h2>
       <div class="lista-pedidos">
         @for (mesa of getMesasEnEstado('ENTREGADO'); track mesa) {
           <div class="mesa-group">
             <span class="mesa-badge">Mesa {{ mesa }}</span>
-            
-              @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track (p.id || $index)) {
+
+            @for (p of getPedidosDeMesaEnEstado(mesa, 'ENTREGADO'); track p.id || $index) {
               <ng-container *ngTemplateOutlet="ticket; context: { $implicit: p }"></ng-container>
             }
           </div>
@@ -78,12 +77,12 @@
 </div>
 
 <ng-template #ticket let-p>
-  <article class="tarjeta-pedido">
+  <article class="tarjeta-pedido" [attr.aria-label]="'Pedido ' + p.codigo + ' de Mesa ' + p.mesaId">
     <!-- CABECERA DEL TICKET -->
     <header class="ticket-header">
       <div class="ticket-left">
         <div class="ticket-codigo">
-          {{ p.codigo || ('#' + (p.id | slice:0:6)) }}
+          {{ p.codigo || '#' + (p.id | slice: 0 : 6) }}
         </div>
         <div class="ticket-mesa">
           {{ p.mesaId }}
@@ -92,22 +91,22 @@
 
       <div class="ticket-right">
         <div class="ticket-hora">
-          {{ p.fechaCreacion | date:'HH:mm' }}
+          {{ p.fechaCreacion | date: 'HH:mm' }}
         </div>
-        <div class="ticket-total">
-          {{ p.totalPedido | number:'1.2-2' }} €
-        </div>
+        <div class="ticket-total">{{ p.totalPedido | number: '1.2-2' }} €</div>
       </div>
     </header>
 
     <!-- ITEMS -->
-    <section class="tarjeta-items">
+    <section class="tarjeta-items" aria-label="Contenido del pedido">
       @for (item of p.lineasPedido; track $index) {
         <div class="item-linea">
           <strong class="item-cantidad">{{ item.cantidad }}x</strong>
           <span class="item-nombre">{{ item.nombreActual }}</span>
           @if (item.nota) {
-            <div class="nota-item">Nota: {{ item.nota }}</div>
+            <div class="nota-item" [attr.aria-label]="'Nota especial: ' + item.nota">
+              Nota: {{ item.nota }}
+            </div>
           }
         </div>
       }
@@ -116,12 +115,22 @@
     <!-- BOTONES -->
     <footer class="acciones-grid">
       @if (puedePasarAEnPreparacion(p)) {
-        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'PREPARANDO')">
+        <button
+          type="button"
+          class="btn-accion"
+          (click)="actualizarEstado(p, 'PREPARANDO')"
+          [attr.aria-label]="'Empezar a preparar pedido ' + p.codigo + ' de mesa ' + p.mesaId"
+        >
           Preparar
         </button>
       }
       @if (puedePasarAListo(p)) {
-        <button type="button" class="btn-accion" (click)="actualizarEstado(p, 'LISTO')">
+        <button
+          type="button"
+          class="btn-accion"
+          (click)="actualizarEstado(p, 'LISTO')"
+          [attr.aria-label]="'Marcar como listo pedido ' + p.codigo + ' de mesa ' + p.mesaId"
+        >
           Listo
         </button>
       }

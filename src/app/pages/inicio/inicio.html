@@ -1,29 +1,40 @@
 <div class="home-hero">
-  <div class="hero-bg"></div>
-  <div class="hero-spotlight"></div>
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-spotlight" aria-hidden="true"></div>
 
   <div class="content-wrapper">
     <header class="brand">
       <div class="logo-container">
-        <div class="logo-icon">SM</div>
+        <div class="logo-icon" aria-hidden="true">SM</div>
         <h1 class="logo-text">Smart<span>Menu</span></h1>
       </div>
       <p class="subtitle">Descubre una nueva forma de pedir</p>
     </header>
 
-    <nav class="actions">
-      <button type="button" class="action-card ia-special" (click)="goToIA()">
+    <nav class="actions" role="group" aria-label="Opciones de pedido">
+      <button
+        type="button"
+        class="action-card ia-special"
+        (click)="goToIA()"
+        aria-labelledby="title-ia desc-ia"
+      >
         <div class="action-info">
-          <h2 class="action-title">Menú Inteligente</h2>
-          <p class="action-desc">Basado en tus objetivos de salud</p>
+          <h2 class="action-title" id="title-ia">Menú Inteligente</h2>
+          <p class="action-desc" id="desc-ia">Basado en tus objetivos de salud</p>
         </div>
       </button>
 
-      <button type="button" class="action-card" (click)="goToBuild()">
+      <button
+        type="button"
+        class="action-card"
+        (click)="goToBuild()"
+        aria-labelledby="title-menu desc-menu"
+      >
         <div class="action-info">
-          <h2 class="action-title">Menú Completo</h2>
-          <p class="action-desc">Explora y gestiona tu pedido</p>
+          <h2 class="action-title" id="title-menu">Menú Completo</h2>
+          <p class="action-desc" id="desc-menu">Explora y gestiona tu pedido</p>
         </div>
       </button>
     </nav>
+  </div>
 </div>

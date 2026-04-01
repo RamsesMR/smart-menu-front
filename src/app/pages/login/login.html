@@ -13,6 +13,8 @@
         type="email"
         placeholder="tablet@restaurante.com"
         aria-required="true"
+        [attr.aria-invalid]="error ? 'true' : 'false'"
+        [attr.aria-describedby]="error ? 'login-error' : null"
       />
 
       <label for="pass-input">Contraseña</label>
@@ -22,6 +24,8 @@
         type="password"
         placeholder="••••••••"
         aria-required="true"
+        [attr.aria-invalid]="error ? 'true' : 'false'"
+        [attr.aria-describedby]="error ? 'login-error' : null"
       />
 
       <button
@@ -35,7 +39,7 @@
     </div>
 
     @if (error) {
-      <p class="error-msg" role="alert"><span aria-hidden="true">⚠️</span> {{ error }}</p>
+      <p class="error-msg" role="alert"><span aria-hidden="true">Error: </span> {{ error }}</p>
     }
   </main>
 </div>

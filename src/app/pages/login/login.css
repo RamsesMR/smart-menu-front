@@ -61,3 +61,26 @@ button:disabled {
   margin-top: 14px;
   color: #ff6b6b;
 }
+
+input:focus-visible {
+  outline: 2px solid #2d6cdf;
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+button:focus-visible {
+  outline: 2px solid #e8eef6;
+  outline-offset: 4px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-msg {
+  margin-top: 14px;
+  color: #ff6b6b;
+  font-size: 14px;
+  font-weight: 500;
+}

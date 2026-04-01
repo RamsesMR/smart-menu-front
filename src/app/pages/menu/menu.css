@@ -308,6 +308,8 @@ body {
 .qty-btn {
   width: 32px;
   height: 32px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 999px;
   border: 1px solid rgba(214, 177, 94, 0.25);
   background: rgba(214, 177, 94, 0.12);
@@ -441,4 +443,18 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.chip:focus-visible,
+.qty-btn:focus-visible,
+.search-input:focus-visible,
+.confirm-btn:focus-visible,
+.btn-ver-todo:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.smart-tag,
+.kcal-badge {
+  user-select: none;
 }
