@@ -6,15 +6,14 @@ export const endpoints = {
   auth: {
     login: '/auth/login',
     me: '/auth/me',
-  },
-  /** Catálogo de productos (Carta) */
+  },    
   productos: {
-    list: '/producto',
+    list: '/producto',   // este es tu "menú"
     one: (id: string) => `/producto/${id}`,
   },
   /** Flujo del Cliente y Gestión de Barra */
   orders: {
-    create: '/pedido', // Cambiado a singular para coincidir con el controlador
+    create: '/pedido', 
     list: '/pedido',
     status: (id: string) => `/pedido/${id}/estado`,
   },

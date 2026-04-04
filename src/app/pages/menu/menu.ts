@@ -220,9 +220,13 @@ export class Menu implements OnInit {
     console.log('RESTAR', p.nombre, this.qtys()[p.id]);
   }
 
-  setCat(c: string | null): void {
-    this.catActiva.set(c);
-  }
+  // Guardamos en el store
+  this.pedidoStore.guardarItems(items);
+
+  // Navegamos a /pedir
+  this.router.navigate(['/pedir']);
+}
+
 
   irAPedir(): void {
     this.router.navigate(['/pedir']);

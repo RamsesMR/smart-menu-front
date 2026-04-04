@@ -39,28 +39,16 @@ export class Login {
     this.error = null;
     this.loading = true;
 
-    const credentials = {
-      email: this.email.trim(),
-      password: this.password,
-    };
-
-    /**
-     * Inicia la suscripción al flujo de autenticación.
-     */
-    this.auth.login(credentials.email, credentials.password).subscribe({
-      next: (response) => {
-        console.log('Usuario autenticado', response.user.nombre);
-        this.loading = false;
-        this.router.navigateByUrl('/inicio');
-      },
-      error: (err) => {
-        this.loading = false;
-        this.error = 'Credenciales inválidas';
-        this.auth.clear();
-      },
-      complete: () => {
-        this.loading = false;
-      },
-    });
-  }
+  this.auth.login(this.email.trim(), this.password).subscribe({
+    next: () => {
+      this.router.navigateByUrl('/inicio');
+      this.loading = false;
+    },
+    error: () => {
+      this.auth.clear();
+      this.error = 'Credenciales inválidas';
+      this.loading = false;
+    }
+  });
+}
 }

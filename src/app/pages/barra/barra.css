@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 .barra-page {
-  height: 100dvh;
+  height: 100%; 
   width: 100%;
   box-sizing: border-box;
   padding: 20px 24px;

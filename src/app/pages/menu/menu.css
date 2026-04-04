@@ -42,6 +42,7 @@ body {
   min-height: calc(100dvh - 20px);
   display: grid;
   grid-template-rows: auto 1fr;
+  /* overflow: hidden; */
   padding: 18px;
   padding-top: 56px;
   gap: 14px;
