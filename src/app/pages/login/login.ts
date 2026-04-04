@@ -2,11 +2,16 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../api/auth-service';
 import { environment } from '../../../environment/environment'; 
 
 
+/** Componente de control de acceso.
+ * Gestiona la captura de las credenciales del usuario
+ * y el flujo de autenticación inicial.
+ * Permite que el {@link roleGuard} gestione los
+ * permisos según el rol.
+ */
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -20,13 +25,19 @@ export class Login {
   loading = false;
   error: string | null = null;
 
+  /**
+   *
+   * @param auth Servicio para la gestión de identidad {@link AuthService}
+   * @param router Servicio de navegación de Angular
+   */
   constructor(
     private auth: AuthService,
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
   ) {}
-
-  async submit() {
+  /**
+   * Procesa el envío del formulario de acceso.
+   */
+  submit() {
     this.error = null;
     this.loading = true;
 
@@ -39,14 +50,23 @@ export class Login {
 await this.http.get(`${environment.apiUrl}/producto`).toPromise();
 
 
-      // OK -> entra
-      this.router.navigateByUrl('/inicio');
-    } catch (e: any) {
-      // si falla, limpiamos token para que no se quede guardado
-      this.auth.clear();
-      this.error = 'Credenciales inválidas o tablet no autorizada';
-    } finally {
-      this.loading = false;
-    }
+    /**
+     * Inicia la suscripción al flujo de autenticación.
+     */
+    this.auth.login(credentials.email, credentials.password).subscribe({
+      next: (response) => {
+        console.log('Usuario autenticado', response.user.nombre);
+        this.loading = false;
+        this.router.navigateByUrl('/inicio');
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = 'Credenciales inválidas';
+        this.auth.clear();
+      },
+      complete: () => {
+        this.loading = false;
+      },
+    });
   }
 }

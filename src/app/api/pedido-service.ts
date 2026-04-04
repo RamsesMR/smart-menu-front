@@ -1,49 +1,49 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiClient } from './api-client';
-import { ItemCarrito } from '../state/pedido.sotore';
+import { endpoints } from '../config/endpoints';
+
+export interface LineaPedido {
+  productoId: string;
+  nombreActual: string;
+  precioActual: number;
+  cantidad: number;
+  nota?: string;
+}
 
 export interface NuevoPedido {
-  estadoPedido: string;
+  mesaId: string;
   nota: string;
-  items: ItemCarrito[];   // ahora encaja con lo que vamos a montar
-  total: number;
+  lineasPedido: LineaPedido[];
+  totalPedido: number;
   fechaCreacion: string;
-  mesa: string;
 }
 
 export interface PedidoBackend {
   id?: string;
   _id?: string;
-  estadoPedido: string;
+  mesaId: string;
+  estado: string;
+  codigo?: string;
   nota: string;
-  items: any[];
-  total: number;
+  lineasPedido: LineaPedido[];
+  totalPedido: number;
   fechaCreacion: string;
-  mesa: string;
 }
-
 
 @Injectable({ providedIn: 'root' })
 export class PedidoService {
   constructor(private api: ApiClient) {}
 
   crearPedido(pedido: NuevoPedido): Observable<any> {
-  
-    return this.api.post('/pedido', pedido);
+    return this.api.post(endpoints.orders.create, pedido);
   }
-
 
   obtenerPedidos(): Observable<PedidoBackend[]> {
-
-    return this.api.get<PedidoBackend[]>('/pedido');
- 
+    return this.api.get<PedidoBackend[]>(endpoints.orders.list);
   }
 
-
-  actualizarPedido(pedido: PedidoBackend): Observable<any> {
-   
-    return this.api.put('/pedido/', pedido);
-
+  actualizarEstadoPedido(id: string, nuevoEstado: string): Observable<any> {
+    return this.api.patch(`${endpoints.orders.list}/${id}/estado`, { estado: nuevoEstado });
   }
 }

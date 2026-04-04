@@ -1,12 +1,15 @@
-export type Role = 'CLIENTE' | 'BARRA' | 'CAMARERO' | 'ADMIN';
+/** Roles de usuario permitidos en el sistema */
+export type Role = 'CLIENTE' | 'EMPRESA';
 
+/** Representación del usuario autenticado */
 export interface User {
-  id: string;
   nombre: string;
-  role: Role;
+  email: string;
+  rol: Role;
   mesaId?: string;
 }
 
+/** Respuesta exitosa del servidor tras el login */
 export interface AuthResponse {
   token: string;
   user: User;

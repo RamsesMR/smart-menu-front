@@ -1,5 +1,8 @@
+/** Representación técnica de un plato o bebida */
 export interface Producto {
   id: string;
+  categoriaId?: string;
+  restauranteId?: string;
   nombre: string;
   descripcion: string;
   precio: number;
@@ -9,6 +12,7 @@ export interface Producto {
   imagen?: string;
   disponible: boolean;
   categoria?: string;
+  kcal?: number;
 }
 
 export interface MenuResponse {

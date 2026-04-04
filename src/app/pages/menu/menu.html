@@ -1,61 +1,155 @@
 
-<div class="botonSalir">
-  <button class="logout btn btn-dark" (click)="logout()">Salir</button>
+<div class="menu-container">
+  <div class="top-actions">
+    @if (auth.getRole() === 'EMPLEADO' || auth.getRole() === 'EMPRESA') {
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    }
+  </div>
 
-</div>
-<div class="menu">
-  <header class="top">
-    <div class="top-row">
-      <div class="title">Menú</div>
+  @if (idsRecomendados.length > 0) {
+    <div class="ia-banner">
+      <p>
+        <strong>Menú personalizado listo.</strong> Estos platos encajan con tus objetivos.
+        @if (kcalObjetivoIA) {
+          Tu objetivo hoy es de <strong>{{ kcalObjetivoIA }} kcal</strong>
+        } @else {
+          Estos platos encajan con tus objetivos nutricionales.
+        }
+      </p>
 
-      <div class="order-mini" *ngIf="modo === 'armar'">
-        <span>{{ totalItems }} items</span>
-        <span class="dot">•</span>
-        <span>{{ totalEuros | number:'1.2-2' }} €</span>
-      </div>
-    </div>
-
-    <div class="search-row">
-      <input class="search" placeholder="Buscar..." [(ngModel)]="search" />
-    </div>
-
-    <div class="chips">
-      <button class="chip" [class.active]="catActiva===null" (click)="setCat(null)">Todo</button>
-      <button class="chip" *ngFor="let c of categorias"
-              [class.active]="catActiva===c"
-              (click)="setCat(c)">
-        {{ c }}
+      <button type="button" class="btn-ver-todo" (click)="limpiarFiltroIA()">
+        Ver toda la carta
       </button>
     </div>
-  </header>
+  }
 
-  <main class="grid" role="list">
-    <button class="card" *ngFor="let p of productosFiltrados()" (click)="openProducto(p)">
-      <div class="img">
-        <!-- si luego sirves imágenes desde backend, aquí p.imagen -->
-        <div style="object-fit: cover !important" class="img-ph">
-            <img src="{{p.imagen}}" alt="imagen del menu">
+  <div class="menu">
+    <header class="top">
+      <div class="top-row">
+        <h1 class="title">Menú</h1>
+
+        @if (modo === 'armar') {
+          <div class="order-mini">
+            <span>{{ totalItems() }} artículos</span>
+            <span class="dot">•</span>
+            <span>{{ totalEuros() | number: '1.2-2' }} €</span>
+          </div>
+        }
+      </div>
+
+      <div class="search-row">
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Buscar..."
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </div>
+
+      <div class="chips-container">
+        <button
+          type="button"
+          class="chip"
+          [class.active]="catActiva() === null"
+          (click)="setCat(null)"
+        >
+          Todo
+        </button>
+
+        @for (c of categorias; track c) {
+          <button
+            type="button"
+            class="chip"
+            [class.active]="catActiva() === c"
+            (click)="setCat(c)"
+          >
+            {{ c }}
+          </button>
+        }
+      </div>
+    </header>
+
+    <main class="grid-container">
+      @if (loading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando nuestra carta...</p>
         </div>
-      </div>
+      } @else {
+        <div class="grid">
+          @for (p of productosFiltrados(); track p.id + p.qty) {
+            <article class="card">
+              <div class="card-img-box">
+                @if (idsRecomendados.includes(p.id)) {
+                  <div class="smart-tag">Recomendado</div>
+                }
 
-      <div class="meta">
-        <div class="name">{{ p.nombre }}</div>
-        <div class="desc">{{ p.descripcion }}</div>
-        <div class="price">{{ p.precioConIva | number:'1.2-2' }} €</div>
-      </div>
+                <div class="img-wrapper">
+                  <img
+                    [src]="p.imagen"
+                    [alt]="p.nombre"
+                    class="product-img"
+                    onerror="this.src='assets/default-plate.png'"
+                  />
+                </div>
+              </div>
 
-      <!-- Controles SOLO en modo armar -->
-      <div class="controls" *ngIf="modo==='armar'" (click)="$event.stopPropagation()">
-    <button class="qty" (click)="$event.stopPropagation(); dec(p)">−</button>
-    <div class="count">{{ getQty(p) }}</div>
-    <button class="qty" (click)="$event.stopPropagation(); inc(p)">+</button>
-  </div>
-    </button>
-  </main>
+              <div class="meta">
+                <h2 class="name">{{ p.nombre }}</h2>
+                <p class="desc">{{ p.descripcion }}</p>
 
-  <!-- Barra inferior SOLO en modo armar -->
-  <div class="bottom" *ngIf="modo==='armar'" style="display: flex; justify-content: center; align-items: center;">
-   
-    <button style="width: 60%;" class=" bottom-btn bg-dark" (click)="irAPedir()">Confirmar</button>
+                @if (p.kcal) {
+                  <div class="kcal-badge">🔥 {{ p.kcal }} kcal</div>
+                }
+
+                <div class="macros-grid">
+                  <span title="Proteínas">Proteína {{ p.proteinas }} g</span>
+                  <span title="Grasas">Grasa {{ p.grasas }} g</span>
+                  <span title="Carbohidratos">Carbohidratos {{ p.carbohidratos }} g</span>
+                </div>
+
+                <div class="price">{{ p.precioConIva | number: '1.2-2' }} €</div>
+              </div>
+
+              @if (modo === 'armar') {
+                <div class="controls">
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    (click)="dec(p, $event)"
+                  >
+                    −
+                  </button>
+
+                  <span class="count">{{ p.qty }}</span>
+
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    (click)="inc(p, $event)"
+                  >
+                    +
+                  </button>
+                </div>
+              }
+            </article>
+          } @empty {
+            <div class="empty-state">
+              <p>No se encontraron platos.</p>
+              <small>(Revisando {{ productos.length }} productos totales)</small>
+            </div>
+          }
+        </div>
+      }
+    </main>
+
+    @if (modo === 'armar' && !loading && totalItems() > 0) {
+      <footer class="bottom-actions">
+        <button type="button" class="confirm-btn" (click)="irAPedir()">
+          Confirmar mi pedido
+        </button>
+      </footer>
+    }
   </div>
 </div>

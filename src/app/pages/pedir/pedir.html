@@ -1,98 +1,136 @@
 <div class="pedido">
-
-  <!-- CABECERA -->
   <header class="top">
     <div class="top-row">
-      <div class="title">Tu pedido</div>
+      <div class="title">Confirmar pedido</div>
 
-      <div class="resumen-mini" *ngIf="items.length > 0">
-        <span>{{ items.length }} línea(s)</span>
-        <span class="dot">•</span>
-        <span>{{ totalEuros | number:'1.2-2' }} €</span>
+      @if (items.length > 0 || pedidoConfirmado) {
+        <div class="badge-app mesa-badge">
+          📍 {{ mesa }}
+        </div>
+      }
+    </div>
+
+    @if (pedidoConfirmado) {
+      <div class="status-tracker card-app">
+        <div class="status-header">
+          <span class="status-label">Estado: {{ textoEstadoBonito(estadoActual) }}</span>
+          <span class="status-percentage">{{ getProgresoPorcentaje() }}%</span>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-fill" [style.width.%]="getProgresoPorcentaje()"></div>
+        </div>
       </div>
-    </div>
-
-    <!-- Campo opcional para mesa -->
-    <div class="mesa-row" *ngIf="items.length > 0">
-      <label for="mesa">Mesa:</label>
-      <input id="mesa" type="text" [(ngModel)]="mesa" placeholder="Mesa 1" />
-    </div>
+    }
   </header>
 
-  <!-- MENSAJES -->
-  <div class="mensaje ok" *ngIf="mensajeOk">
-    {{ mensajeOk }}
-  </div>
-  <div class="mensaje error" *ngIf="mensajeError">
-    {{ mensajeError }}
-  </div>
+  <main class="lista-pedido">
+    @if (tieneItemsEnviados()) {
+      <div class="separador-comanda separador-ok">En cocina (confirmado)</div>
 
-  <!-- SIN ITEMS -->
-  <div *ngIf="items.length === 0" class="sin-items">
-    <p>No tienes productos en el pedido.</p>
-    <button class="btn btn-dark" (click)="volverAlMenu()">
-      Volver al menú
-    </button>
-  </div>
+      @for (item of itemsEnviados(); track identificadorItem($index, item)) {
+        <div class="linea card-app enviado">
+          <div class="linea-info-principal">
+            <div class="nombre">{{ item.nombreActual }} <span class="cantidad-inline">(x{{ item.cantidad }})</span></div>
+            <div class="subtotal">{{ item.cantidad * item.precioActual | number: '1.2-2' }} €</div>
+          </div>
 
-  <!-- LISTA DE ITEMS -->
-  <main *ngIf="items.length > 0" class="lista-pedido">
-
-    <div class="linea" *ngFor="let item of items">
-      <div class="linea-info-principal">
-        <div class="nombre">{{ item.nombreActual }}</div>
-        <div class="precio-unitario">
-          {{ item.precioActual | number:'1.2-2' }} €/ud
+          @if (item.nota) {
+            <div class="nota-fija">"{{ item.nota }}"</div>
+          }
         </div>
-      </div>
+      }
+    }
 
-      <div class="linea-controles">
-        <button class="btn-cantidad" (click)="cambiarCantidad(item, -1)">−</button>
-        <div class="cantidad">{{ item.cantidad }}</div>
-        <button class="btn-cantidad" (click)="cambiarCantidad(item, 1)">+</button>
+    @if (tieneItemsNuevos()) {
+      <div class="separador-comanda separador-pendiente">A pedir (nueva ronda)</div>
 
-        <div class="subtotal">
-          {{ (item.cantidad || 0) * (item.precioActual || 0) | number:'1.2-2' }} €
+      @for (item of itemsNuevos(); track identificadorItem($index, item)) {
+        <div class="linea card-app pendiente">
+          <div class="linea-info-principal">
+            <div class="nombre">{{ item.nombreActual }}</div>
+            <div class="subtotal">{{ item.cantidad * item.precioActual | number: '1.2-2' }} €</div>
+          </div>
+
+          <div class="linea-controles">
+            <button class="btn-cantidad" type="button" (click)="cambiarCantidad(item, -1)" [disabled]="enviando">
+              −
+            </button>
+
+            <span class="cantidad">{{ item.cantidad }}</span>
+
+            <button class="btn-cantidad" type="button" (click)="cambiarCantidad(item, 1)" [disabled]="enviando">
+              +
+            </button>
+          </div>
+
+          <textarea
+            class="input-app"
+            [(ngModel)]="item.nota"
+            (ngModelChange)="cambiarNota(item, $event)"
+            [disabled]="enviando"
+            placeholder="Nota para cocina..."
+          ></textarea>
         </div>
-      </div>
-
-      <div class="nota">
-        <label>Nota para cocina:</label>
-        <textarea
-          rows="2"
-          [(ngModel)]="item.nota"
-          (ngModelChange)="cambiarNota(item, $event)"
-          placeholder="Sin cebolla, poco hecho..."
-        ></textarea>
-      </div>
-    </div>
-
+      }
+    }
   </main>
 
-  <!-- PIE: TOTAL Y BOTONES -->
-  <footer *ngIf="items.length > 0" class="pie">
+  @if (items.length > 0) {
+    <footer class="pie card-app">
+      <div class="totales">
+        <div class="totales-bloque">
+          <span class="label-total">Nueva ronda:</span>
+          <span class="valor-total">{{ totalNuevaRonda | number: '1.2-2' }} €</span>
+        </div>
 
-    <div class="totales">
-      <span>Total:</span>
-      <span class="total-euros">{{ totalEuros | number:'1.2-2' }} €</span>
-    </div>
+        <div class="totales-bloque total-acumulado">
+          <span class="label-total">Total acumulado:</span>
+          <span class="valor-total grande">{{ totalEuros | number: '1.2-2' }} €</span>
+        </div>
+      </div>
 
-    <div class="acciones">
-      <button class="btn btn-outline-secondary" (click)="vaciarCarrito()">
-        Vaciar
+      <div class="acciones">
+        <button class="btn-app danger" type="button" (click)="vaciarCarrito()">
+          Vaciar nueva ronda
+        </button>
+
+        <button class="btn-app secondary" type="button" (click)="volverAlMenu()">
+          Añadir más
+        </button>
+
+        <button
+          class="btn-app primary"
+          type="button"
+          [disabled]="enviando || !tieneItemsNuevos()"
+          (click)="confirmarPedido()"
+        >
+          {{ enviando ? 'Enviando...' : 'Confirmar nueva ronda' }}
+        </button>
+      </div>
+    </footer>
+  } @else if (pedidoConfirmado) {
+    <footer class="pie card-app pie-simple">
+      <p class="texto-secundario">¿Te apetece algo más?</p>
+      <button class="btn-app secondary" type="button" (click)="volverAlMenu()">
+        Añadir más productos
       </button>
-
-      <button class="btn btn-light" (click)="volverAlMenu()">
-        Seguir pidiendo
-      </button>
-
-      <button class="btn btn-dark"
-              [disabled]="enviando || !items.length"
-              (click)="confirmarPedido()">
-        {{ enviando ? 'Enviando...' : 'Confirmar pedido' }}
-      </button>
-    </div>
-
-  </footer>
-
+    </footer>
+  }
 </div>
+
+@if (mensajeOk) {
+  <div class="feedback-overlay success">
+    <div class="feedback-content">
+      <h3>{{ mensajeOk }}</h3>
+      <p>Estamos preparando todo...</p>
+    </div>
+  </div>
+}
+
+@if (mensajeError) {
+  <div class="alert-error">
+    <span>{{ mensajeError }}</span>
+    <button type="button" (click)="mensajeError = ''">✕</button>
+  </div>
+}
