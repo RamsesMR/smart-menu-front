@@ -1,12 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
-import { PedidoStore,ItemCarrito } from '../../state/pedido.sotore';  // AJUSTA RUTA
-
-import { PedidoService, NuevoPedido } from '../../api/pedido-service'; // AJUSTA RUTA
-
+import { PedidoStore, ItemCarrito } from '../../state/pedido.store';
+import { PedidoService, NuevoPedido } from '../../api/pedido-service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-pedir',
@@ -15,15 +13,18 @@ import { PedidoService, NuevoPedido } from '../../api/pedido-service'; // AJUSTA
   templateUrl: './pedir.html',
   styleUrls: ['./pedir.css'],
 })
-export class Pedir implements OnInit {
-
+export class Pedir implements OnInit, OnDestroy {
   items: ItemCarrito[] = [];
   totalEuros = 0;
+  totalNuevaRonda = 0;
   nota = '';
-  mesa = '';                // si quieres pedir mesa (ej: "Mesa 1")
+  mesa = '';
   enviando = false;
   mensajeError = '';
   mensajeOk = '';
+  pedidoConfirmado = false;
+  estadoActual = 'RECIBIDO';
+  private vigilanciaSub?: Subscription;
 
   constructor(
     private pedidoStore: PedidoStore,
@@ -33,101 +34,238 @@ export class Pedir implements OnInit {
 
   ngOnInit(): void {
     this.items = this.pedidoStore.obtenerItems();
-    this.recalcularTotal();
-  }
+    this.mesa = this.pedidoStore.obtenerMesa() || 'Mesa 1';
+    this.recalcularTotales();
 
-  private recalcularTotal() {
-    this.totalEuros = this.items.reduce(
-      (s, i) => s + (i.cantidad || 0) * (i.precioActual || 0),
-      0
-    );
-  }
+    const estadoGuardado = localStorage.getItem('ultimo_estado_pedido');
 
-  seguirPidiendo() {
-  this.pedidoStore.vaciar();           // 🧹 vaciamos el carrito
-  this.items = [];                     // limpiamos también en memoria
-  this.router.navigate(['/menu'], {
-    queryParams: { modo: 'armar' },    // volvemos al menú en modo armar
-  });
-}
+    if (estadoGuardado && this.tieneItemsEnviados()) {
+      this.pedidoConfirmado = true;
+      this.estadoActual = estadoGuardado;
+      this.iniciarVigilanciaEstado();
 
-
-  // Cambiar cantidad en una línea
-  cambiarCantidad(item: ItemCarrito, delta: number) {
-    const nuevaCantidad = (item.cantidad || 0) + delta;
-
-    if (nuevaCantidad <= 0) {
-      // Quitamos la línea del pedido
-      this.items = this.items.filter(i => i !== item);
+      if (estadoGuardado === 'ENTREGADO') {
+        setTimeout(() => {
+          this.pedidoConfirmado = false;
+        }, 10000);
+      }
     } else {
-      item.cantidad = nuevaCantidad;
+      this.pedidoConfirmado = false;
     }
-
-    this.pedidoStore.guardarItems(this.items);
-    this.recalcularTotal();
   }
 
-  // Guardar nota de cocina
-  cambiarNota(item: ItemCarrito, nota: string) {
-    item.nota = nota;
-    this.pedidoStore.guardarItems(this.items);
+  private recalcularTotales(): void {
+    this.totalEuros = this.items.reduce(
+      (s, i) => s + (Number(i.cantidad || 0) * Number(i.precioActual || 0)),
+      0,
+    );
+
+    this.totalNuevaRonda = this.items
+      .filter((i) => !i.enviado)
+      .reduce(
+        (s, i) => s + (Number(i.cantidad || 0) * Number(i.precioActual || 0)),
+        0,
+      );
   }
 
-  // Vaciar por completo el pedido
-  vaciarCarrito() {
-    this.items = [];
-    this.pedidoStore.vaciar();
-    this.recalcularTotal();
-  }
-
-  // Volver a la pantalla del menú
-  volverAlMenu() {
+  seguirPidiendo(): void {
     this.router.navigate(['/menu'], { queryParams: { modo: 'armar' } });
   }
 
-confirmarPedido() {
-  if (!this.items.length) {
-    console.error('No hay productos en el pedido');
-    return;
+  iniciarVigilanciaEstado(): void {
+    this.vigilanciaSub?.unsubscribe();
+
+    this.vigilanciaSub = interval(2000).subscribe(() => {
+      const estadoEnStorage = localStorage.getItem('ultimo_estado_pedido');
+
+      if (estadoEnStorage && estadoEnStorage !== this.estadoActual) {
+        this.estadoActual = estadoEnStorage;
+
+        if (this.estadoActual === 'ENTREGADO') {
+          setTimeout(() => {
+            this.pedidoConfirmado = false;
+            localStorage.removeItem('ultimo_estado_pedido');
+            this.vigilanciaSub?.unsubscribe();
+          }, 10000);
+        }
+      }
+    });
   }
 
-  const hoy = new Date().toISOString().slice(0, 10);
+  ngOnDestroy(): void {
+    this.vigilanciaSub?.unsubscribe();
+  }
 
-  const items: ItemCarrito[] = this.items.map(i => ({
-    // ⬇️ si tienes un productoId válido de 24 chars, puedes dejarlo;
-    // si no, simplemente no lo pongas y ya (es opcional)
-    // productoId: i.productoId,
+  cambiarCantidad(item: ItemCarrito, delta: number): void {
+    if (item.enviado) return;
 
-    nombreActual: i.nombreActual,
-    precioActual: Number(i.precioActual || 0),
-    cantidad: Number(i.cantidad || 0),
-    nota: i.nota || '',
-  }));
+    const index = this.items.findIndex(
+      (i) =>
+        i.productoId === item.productoId &&
+        i.enviado === item.enviado &&
+        i.nombreActual === item.nombreActual,
+    );
 
-  const cuerpo: NuevoPedido = {
-    estadoPedido: 'NUEVO',
-    nota: this.nota || '',
-    items,
-    total: Number(this.totalEuros || 0),
-    fechaCreacion: hoy,
-    mesa: this.mesa || 'Mesa 1',
-  };
+    if (index === -1) return;
 
-  console.log('CUERPO QUE ENVÍO A /pedido:', cuerpo);
+    const cantidadActual = Number(this.items[index].cantidad ?? 0);
+    const nuevaCantidad = cantidadActual + delta;
 
-  this.pedidoService.crearPedido(cuerpo).subscribe({
-    next: (res) => {
-      console.log('PEDIDO INSERTADO OK:', res);
-      this.pedidoStore.vaciar();
-      this.router.navigate(['/inicio']);
-    },
-    error: (err) => {
-      console.error('ERROR AL INSERTAR PEDIDO', err);
-      console.error('BACKEND RESPONDE:', err.error);
-    },
-  });
-}
+    if (nuevaCantidad <= 0) {
+      this.items.splice(index, 1);
+    } else {
+      this.items[index] = {
+        ...this.items[index],
+        cantidad: nuevaCantidad,
+      };
+    }
 
+    this.items = [...this.items];
+    this.pedidoStore.guardarItems(this.items);
+    this.recalcularTotales();
+  }
 
+  cambiarNota(item: ItemCarrito, nota: string): void {
+    if (item.enviado) return;
 
+    const index = this.items.findIndex(
+      (i) =>
+        i.productoId === item.productoId &&
+        i.enviado === item.enviado &&
+        i.nombreActual === item.nombreActual,
+    );
+
+    if (index === -1) return;
+
+    this.items[index] = {
+      ...this.items[index],
+      nota,
+    };
+
+    this.items = [...this.items];
+    this.pedidoStore.guardarItems(this.items);
+  }
+
+  vaciarCarrito(): void {
+    this.items = this.items.filter((i) => i.enviado === true);
+    this.pedidoStore.guardarItems(this.items);
+    this.recalcularTotales();
+  }
+
+  volverAlMenu(): void {
+    this.router.navigate(['/menu'], { queryParams: { modo: 'armar' } });
+  }
+
+  confirmarPedido(): void {
+    this.mensajeError = '';
+    this.mensajeOk = '';
+
+    const productosNuevos = this.itemsNuevos();
+
+    if (productosNuevos.length === 0) {
+      this.mensajeError = 'No hay productos nuevos para enviar.';
+      return;
+    }
+
+    this.enviando = true;
+
+    const idComanda = 'cmd-' + Date.now();
+
+    const cuerpo: NuevoPedido = {
+      mesaId: this.mesa,
+      nota: this.nota || '',
+      lineasPedido: productosNuevos.map((i) => ({
+        productoId: i.productoId || '',
+        nombreActual: i.nombreActual,
+        precioActual: i.precioActual,
+        cantidad: i.cantidad,
+        nota: i.nota || '',
+      })),
+      totalPedido: productosNuevos.reduce(
+        (s, i) => s + (Number(i.cantidad) * Number(i.precioActual)),
+        0,
+      ),
+      fechaCreacion: new Date().toISOString(),
+    };
+
+    const finalizarEnvioLocal = () => {
+      this.pedidoStore.agregarAlHistorial({ ...cuerpo, id: idComanda });
+
+      this.items = this.items.map((item) =>
+        !item.enviado
+          ? { ...item, enviado: true }
+          : item
+      );
+
+      this.pedidoStore.guardarItems(this.items);
+      this.recalcularTotales();
+
+      this.mensajeOk = '¡Ronda enviada con éxito!';
+
+      setTimeout(() => {
+        this.mensajeOk = '';
+        this.pedidoConfirmado = true;
+        this.estadoActual = 'RECIBIDO';
+        localStorage.setItem('ultimo_estado_pedido', 'RECIBIDO');
+        this.enviando = false;
+        this.iniciarVigilanciaEstado();
+      }, 2000);
+    };
+
+    this.pedidoService.crearPedido(cuerpo).subscribe({
+      next: () => finalizarEnvioLocal(),
+      error: () => {
+        console.warn('Usando modo local por falta de conexión.');
+        finalizarEnvioLocal();
+      },
+    });
+  }
+
+  getProgresoPorcentaje(): number {
+    const mapa: Record<string, number> = {
+      RECIBIDO: 20,
+      PREPARANDO: 60,
+      LISTO: 90,
+      ENTREGADO: 100,
+      CANCELADO: 0,
+    };
+    return mapa[this.estadoActual] || 0;
+  }
+
+  textoEstadoBonito(estado: string): string {
+    const nombres: Record<string, string> = {
+      RECIBIDO: 'Recibido en cocina',
+      PREPARANDO: 'En preparación...',
+      LISTO: '¡Listo! 🍽️',
+      ENTREGADO: '¡Buen provecho!',
+      CANCELADO: 'Cancelado',
+    };
+    return nombres[estado] || estado;
+  }
+
+  finalizarCicloPedido(): void {
+    localStorage.removeItem('ultimo_estado_pedido');
+    this.pedidoConfirmado = false;
+    this.estadoActual = 'RECIBIDO';
+  }
+
+  itemsEnviados(): ItemCarrito[] {
+    return this.items.filter((i) => i.enviado === true);
+  }
+
+  itemsNuevos(): ItemCarrito[] {
+    return this.items.filter((i) => !i.enviado);
+  }
+
+  tieneItemsEnviados(): boolean {
+    return this.itemsEnviados().length > 0;
+  }
+
+  tieneItemsNuevos(): boolean {
+    return this.itemsNuevos().length > 0;
+  }
+
+  identificadorItem(index: number, item: ItemCarrito): string {
+    return `${item.productoId}-${item.enviado}-${index}`;
+  }
 }

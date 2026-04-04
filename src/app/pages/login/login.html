@@ -1,18 +1,51 @@
 <div class="screen">
-  <div class="card">
-    <h1>Activar tablet</h1>
-    <p class="sub">Introduce las credenciales autorizadas.</p>
+  <div class="bg-glow"></div>
 
-    <label>Email</label>
-    <input [(ngModel)]="email" type="email" placeholder="tablet@restaurante.com" />
+  <main class="card">
+    <header>
+      <h1 class="title">Activar dispositivo</h1>
+      <p class="sub">Introduce las credenciales autorizadas para este terminal.</p>
+    </header>
 
-    <label>Contraseña</label>
-    <input [(ngModel)]="password" type="password" placeholder="••••••••" />
+    <div class="form-group">
+      <div class="input-wrapper">
+        <span class="input-icon">✉️</span>
+        <input
+          id="email-input"
+          [(ngModel)]="email"
+          type="email"
+          placeholder="tablet@restaurante.com"
+          aria-required="true"
+          (keydown.enter)="submit()"
+        />
+      </div>
 
-    <button (click)="submit()" [disabled]="loading || !email || !password">
-      {{ loading ? 'Validando…' : 'Entrar' }}
-    </button>
+      <div class="input-wrapper">
+        <span class="input-icon">🔒</span>
+        <input
+          id="pass-input"
+          [(ngModel)]="password"
+          type="password"
+          placeholder="••••••••"
+          aria-required="true"
+          (keydown.enter)="submit()"
+        />
+      </div>
 
-    <p class="error" *ngIf="error">{{ error }}</p>
-  </div>
+      <button
+        type="button"
+        (click)="submit()"
+        [disabled]="loading || !email || !password"
+        [class.loading]="loading"
+      >
+        {{ loading ? 'Validando…' : 'Activar dispositivo' }}
+      </button>
+    </div>
+
+    @if (error) {
+      <p class="error-msg" role="alert">⚠️ {{ error }}</p>
+    }
+
+    <p class="footer-hint">Terminal autorizado · SmartMenu v1.0</p>
+  </main>
 </div>

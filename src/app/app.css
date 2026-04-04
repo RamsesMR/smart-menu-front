@@ -1,0 +1,8 @@
+main {
+  padding-bottom: 80px;
+  overflow-y: auto;
+}
+
+.fab-bell {
+  z-index: 3000;
+}

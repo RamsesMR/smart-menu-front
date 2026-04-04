@@ -1,253 +1,283 @@
-/* Contenedor general de la página de barra */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
 .barra-page {
   height: 100%; 
   width: 100%;
   box-sizing: border-box;
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
-  background: radial-gradient(circle at top, #202436 0, #05060a 55%, #020308 100%);
-  color: #f5f5f5;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  gap: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
 }
 
 /* HEADER */
 .barra-header {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .barra-header .titulo {
-  font-size: 1.6rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0;
 }
 
-/* Pestañas de estados */
-.estado-tabs {
+.status-sync {
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 999px;
+  padding: 3px 10px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* COLUMNAS KANBAN */
+.barra-columnas {
   display: flex;
-  gap: 0.5rem;
+  flex: 1;
+  gap: 16px;
   overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.estado-tabs::-webkit-scrollbar {
-  height: 4px;
-}
-.estado-tabs::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-}
-
-/* Botones de pestaña */
-.tab {
-  flex-shrink: 0;
-  border: none;
-  outline: none;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.06);
-  color: #d8d8d8;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
-}
-
-.tab:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateY(-1px);
-}
-
-.tab.activo {
-  background: #f97316; /* naranja tipo 'acción' */
-  color: #050509;
-}
-
-/* MAIN */
-.barra-main {
-  flex: 1;
-  min-height: 0; /* importante para que el grid interno haga scroll bien */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Estados de carga / error / vacío */
-.estado-cargando,
-.estado-error,
-.estado-vacio {
-  margin-top: 1.5rem;
-  font-size: 0.95rem;
-  opacity: 0.8;
-}
-
-.estado-error {
-  color: #fca5a5;
-}
-
-.estado-vacio {
-  color: #9ca3af;
-}
-
-/* LISTA DE PEDIDOS */
-.lista-pedidos {
-  margin-top: 0.75rem;
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding-bottom: 8px;
 }
 
-@media (min-width: 900px) {
-  .lista-pedidos {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.barra-columnas::-webkit-scrollbar {
+  height: 4px;
+}
+.barra-columnas::-webkit-scrollbar-track {
+  background: transparent;
+}
+.barra-columnas::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
 }
 
-/* TARJETA DE PEDIDO */
-.tarjeta-pedido {
-  background: radial-gradient(circle at top left, #1f2933 0, #050814 58%);
+.kanban-col {
+  flex: 1;
+  min-width: 280px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  padding: 12px 14px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+
+.col-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  text-align: center;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--accent);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* LISTA */
+.lista-pedidos {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.06) transparent;
+}
+
+/* GRUPO DE MESA */
+.mesa-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  box-shadow:
-    0 12px 28px rgba(15, 23, 42, 0.7),
-    0 0 0 1px rgba(15, 23, 42, 0.8);
 }
 
-/* HEADER de tarjeta */
-.tarjeta-header {
+.mesa-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  padding: 2px 0;
+  display: block;
+}
+
+/* TARJETA */
+.tarjeta-pedido {
+  background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta-pedido:hover {
+  border-color: rgba(196, 142, 60, 0.2);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+/* CABECERA TICKET */
+.ticket-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
 }
 
-.mesa-y-estado {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.mesa {
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.estado {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.5);
-}
-
-/* Puedes personalizar luego por estado con clases extra si quieres:
-   .estado-NUEVO, .estado-LISTO, etc. */
-
-.fecha {
-  font-size: 0.78rem;
-  opacity: 0.7;
-}
-
-/* ITEMS de la tarjeta */
-.tarjeta-items {
-  margin-top: 4px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(148, 163, 184, 0.4);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tarjeta-items .linea {
+.ticket-left {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.tarjeta-items .nombre {
-  font-size: 0.95rem;
-  font-weight: 500;
+.ticket-codigo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text);
 }
 
-.tarjeta-items .detalles {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.tarjeta-items .nota {
-  font-size: 0.75rem;
-  color: #fbbf24;
-}
-
-/* FOOTER de la tarjeta */
-.tarjeta-footer {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(15, 23, 42, 0.8);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-}
-
-.total {
-  font-size: 1rem;
+.ticket-mesa {
+  font-size: 0.78rem;
+  color: var(--muted);
   font-weight: 600;
 }
 
-/* BOTONES de acciones */
-.acciones {
+.ticket-right {
+  text-align: right;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ticket-hora {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ticket-total {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* ITEMS */
+.tarjeta-items {
+  padding: 0 14px;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.btn-accion {
-  border: none;
-  outline: none;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
+.item-linea {
+  font-size: 0.88rem;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--text);
+}
+
+.item-cantidad {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.item-nombre {
   font-weight: 500;
+  line-height: 1.4;
+}
+
+.nota-item {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-style: italic;
+  padding: 3px 8px;
+  border-left: 2px solid rgba(196, 142, 60, 0.4);
+  margin-top: 2px;
+  margin-left: 22px;
+}
+
+/* BOTONES */
+.acciones-grid {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.btn-accion {
+  flex: 1;
+  border: 1px solid rgba(196, 142, 60, 0.2);
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
   cursor: pointer;
-  background: rgba(59, 130, 246, 0.18);
-  color: #e5e7eb;
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  transition: background 0.16s ease, transform 0.06s ease, box-shadow 0.16s ease;
+  background: rgba(196, 142, 60, 0.08);
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
 }
 
 .btn-accion:hover {
-  background: rgba(59, 130, 246, 0.35);
+  background: rgba(196, 142, 60, 0.18);
+  border-color: rgba(196, 142, 60, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.8);
 }
 
-.btn-accion:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-/* Botón de cancelar: rojo */
 .btn-cancelar {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(248, 113, 113, 0.85);
-  color: #fecaca;
+  flex: 0 0 36px;
+  background: rgba(255, 90, 95, 0.08);
+  color: #ff9090;
+  border-color: rgba(255, 90, 95, 0.2);
+  font-size: 0.9rem;
 }
 
 .btn-cancelar:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 90, 95, 0.18);
+  border-color: rgba(255, 90, 95, 0.4);
+  transform: translateY(-1px);
+}
+
+/* VACÍO */
+.vacio-msg {
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.2);
+  padding: 24px 12px;
+  border: 1px dashed rgba(255,255,255,0.06);
+  border-radius: 12px;
+  margin-top: 4px;
 }
